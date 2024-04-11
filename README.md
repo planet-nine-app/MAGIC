@@ -60,6 +60,67 @@ Then you can use that token for purchases, and don't have to keep re-entering yo
 
 Let's take a look at that picture:
 
+```mermaid
+flowchart TD
+    A[Join app 1] 
+    B[Join app 2]
+    A --> C{Associate apps}
+    B --> C{Associate apps}
+    C --> D[Make Purchase]
+    D --> |send card token| E[payment processing]
+    E --> F[Payout to merchant]
+```
 
+So long as the merchant can be linked via the processor, everyone gets their cut, and everyone's happy.
+
+So great, we can make purchases from one app in another app. 
+That's kind of interesting, but nothing earth shattering. 
+But what about this picture:
+
+```mermaid
+flowchart TD
+    A[Join app 1] 
+    B[Join app 2]
+    A --> C{Associate apps}
+    B --> C{Associate apps}
+    C --> D[Make Purchase]
+    D --> |send card token| E[payment processing]
+    E --> F[Payout to merchant]
+    E --> G[Payout to deliverer]
+```
+
+This picture's a little more interesting. 
+Now you have the user's payment split some way between the merchant and a delivery service (say something needs to be shipped, or food is getting delivered).
+So long as the user, merchant, and delivery service are all tokenized by the same processor, this works.
+
+Of course tokenizing with the same processor has historically meant they're all part of the same company.
+But remember with Sessionless, we can associate accounts. 
+So so long as implementers can resolve the keys involved in the transaction back to accounts tokenized with the same processor, everyone gets paid.
+
+And that's what MAGIC does.
+It allows implementers to construct payment pipelines that initiate from a user action, which can be as simple as tapping a button, to as interesting as waving a wand and saying a magic word, and process an arbitrary set of inputs to be resolved in such a way that all participants agree. 
+Just like payments have always done, just with the ability to add actors without a bunch of account management.
+
+## What about non-payments?
+
+When I first thought of MAGIC (you can read the [original patent here][magic-patent]). 
+I was actually more excited about its potential as a solution to a problem that had plagued me for years.
+Namely as a way to facilitate micro-transactions.
+
+I wrote a whole blog post about it that no one read, and a few people on Reddit made fun of me for before my post got deleted.
+If you want you can check it out here: [micro-transaction blog post][blog]. 
+What I didn't realize at the time was that I was too high up in the stack, and hadn't explained the three layers underneath.
+That sent me back to the drawing board, and onto this current effort to get this stack out into the world. 
+
+So forget about the micro-transaction part right now, let's just talk about what a non-payment MAGIC pipeline means, and what it can do.
+
+I wanted it to feel magical, and at the same time needed a way to prevent spamming requests since any kind of "free" reward on the internet is just begging to be hit by bots.
+This was easy enough, let's introduce a globally available resource called Power (now I think we should just drop the pretense and call it MP), that recharges over time, and caps just like MP does in a game like Skyrim.
+This provides a cost for magical transactions, and fits the lore quite nicely. 
+
+It also has some interesting properties.
+MP is non-transferrable, so 
 
 [sessionless]: https://www.github.com/planet-nine-app/sessionless
+[magic-patent]: https://www.planetnineapp.com/magic
+[blog]: https://www.planetnineapp.com/blog
