@@ -4,6 +4,15 @@
 
 ## Overview
 
+*A note on currency* - This README makes reference to small-scale transactions.
+Of course, most of the world doesn't use the same currency, and the volatility, and relative obscurity of cryptocurrencies make them unsuitable to the task of conveying some global sense of value.
+I thought about using the price of a gallon of milk as a measure, but that doesn't work as a shared experience either.
+I think the closest thing to a universal commodity is probably gas/petrol, and since four liters is roughly a gallon we can use that as the unit of measure.
+Of course the price of gas/petrol varies widely, but the order of magnitude is the same...I hope.
+And since this explanation is too wordy already, the comparison of values is between the value of an ad-supported page view, which I'll abbreviate as APV, and four liters of gas/petrol, which I'll abbreviate as 4LP. 
+
+## Now the actual overview
+
 The main README talks a lot about how MAGIC can be used for traditional moneyed transactions, and we'll talk about that some here, but what I really want to talk about is non-moneyed transactions. 
 Transactions that are truly MAGICal, and how we can make them _feel_ magical.
 
@@ -51,7 +60,51 @@ So how can we make it _feel_ like magic.
 
 Here's where you might actually want to read that [blog post][blog].
 The tl;dr is what I was talking about with the gap between advertising and paid transactions.
-If you consider some ad-laden site a transaction of a few cents, because that's what ends up in the creator's pocket from a handful of visitors, then we really have no way of doing transactions between 
+If you consider some ad-laden site a transaction of an APV, because that's what ends up in the creator's pocket from a handful of visitors, then we really have no way of doing transactions between an APV and a 4LP.
+Collectively these are called micro-transactions, and because of interchange fees, its rare for anyone other than governments to allow them (they're why shops have minimum transaction amounts).
+
+My first professional developer job was working on transit systems where transactions often fell in this gap. 
+Due to how our monetization was set up, we would actually lose money on any transaction under 4LP so we made a 4LP minimum. 
+Thing is, when you just need to get on the bus, and you're down to your last half of a 4LP, this doesn't do you much good.
+I've been there. 
+If you've been there too, you'll probably understand the motivation for wanting to fill this gap with _something_, _anything_ that can help people out with those transactions.
+
+I don't know how relevant this is worldwide, but in the US apartment buildings will often have coin operated washers and dryers.
+In a world where no one carries cash this can be a whole day process: take the bus (gotta buy 4LP worth of tickets becase of our app lol) to the bank, get a roll of quarters, bus back, machine's broken so it eats your quarters, call the landlord, but he won't get back to you because it's the weekend, now all your clothes are wet, and you have a job interview tomorrow...
+If this works I'll replace all those stupid coin operated washers and dryers with MAGICal gateways so people don't have to deal with that anymore.
+
+## What does success look like?
+
+I've thought about this for a long time.
+Is this some path to world domination, or just a way for indie hackers to have something fun to play with?
+I think I've arrived at the notion that just giving people the opportunity to use MAGIC, and see what, if anything, comes of it is good for now. 
+We can iterate, and change the protocol as needed to make it more interesting.
+
+So I think what would be great is for that "branded" UX to be recognized by some people. 
+Seeing tiktoks of people waving wands, or some ad-free blog post about blog posts that use MAGIC, that would be success.
+If it grows from there, I'll consider that a bonus.
+
+## How do we get there?
+
+So the purpose of this repo is to define the protocol, implement it in as many languages as possible, and provide examples in as many frameworks as possible. 
+We want to create [this oauth page][oauth-page], but make it look like it wasn't made by a bunch of devs in 2004 
+Based on what MAGIC can do, and what we're trying to do here, my thoughts on where we could use UX are:
+
+* Seriously, what's the UX of MAGIC?
+
+* What kind of UI kit can we provide for MAGICal interactions?
+
+* How does a user know something is MAGICal?
+
+## How to contribute
+
+You are of course welcome to submit PRs, and issues, but you can also come chat with us over at
+<a href="https://discord.gg/W4mQqNnfSq">
+<img src="https://discordapp.com/api/guilds/913584348937207839/widget.png?style=shield"/></a>
+
+I'm planetnineisaspaceship there.
+
 
 [blog]: https://www.planetnineapp.com/blog
+[oauth-page]: https://oauth.net/code/
 
