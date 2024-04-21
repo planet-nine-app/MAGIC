@@ -186,6 +186,7 @@ The MAGIC protocol requires from the caster:
 ```json
 {
   timestamp: string,
+  spell: string,
   casterUUID: string,
   totalCost: non-zero int, 
   mp: bool,
@@ -196,6 +197,7 @@ The MAGIC protocol requires from the caster:
 ```
 
 Where `timestamp` is the time of the transaction as a string in milliseconds from epoch.
+`spell` is the name of the spell, which may require additional information for resolution.
 `casterUUID` is the uuid of the caster.
 `totalCost` is the non-zero cost of the transaction (zero cost transactions allow for MAGICal abuse).
 `mp` is truthy for non-moneyed transactions, and false for moneyed transactions (currencies for things are resolved by resolvers).
@@ -209,6 +211,7 @@ Next comes the restaurant who adds their details to the payload:
 ```json
 { 
   timestamp: string,
+  spell: string,
   casterUUID: string, 
   totalCost: non-zero int,
   mp: bool,
@@ -233,6 +236,7 @@ Next we'll add the driver:
 ```json
 {
   timestamp: string,
+  spell: string,
   casterUUID: string,
   totalCost: non-zero int,
   mp: bool,
@@ -266,6 +270,7 @@ Your reolvable payload could then become:
 ```json
 {
   timestamp: string,
+  spell: string,
   casterUUID: string,
   totalCost: non-zero int,
   mp: bool,
@@ -304,9 +309,157 @@ Since the effect on the gateway of that is unknown, responsible casters shouldn'
 
 So we use Magic Power (MP).
 
+If you've played a game with mp that recharges in real time like Skyrim, this will seem familiar.
+The resolver grants to every user a renewable supply of MP that caps at a certain amount per user.
+Non-money spells expend this mp as their cost so that users can't spam spells that don't cost actual money.
+
+For example, a streamer might install an extension that makes a unicorn appear on screen when someone interacts with them. 
+So as to avoid constant unicorn spam (the name of my next band), the streamer attaches a cost of 400 mp to the spell.
+The resolver of the spell caps users' mp at 1,000 mp so at most any one user can unicorn twice before needing to recharge their mp.
+
+I encourage anyone implementing a resolver to get as creative with this as they want.
+For instance, since mp is expended and not transferred, you might want to generate something for the caster and target of a spell.
+As a bit of foreshadowing, this is what I did when I first built all of this out.
+I generated tokens for everyone called Nineum.
+What is Nineum you ask, we'll find out further up the stack.
+
+## More on casters, gateways, and resolvers
+
+### Casters
+
+The G in MAGIC is for Generic, and the I stands for Input/output.
+In general, MAGIC doesn't care about input and output, but your spells should if they are transacting money.
+For anything that spends money it's important that your caster's input be an action performed by a human if the money is coming from a human's bank account (you could imagine totally automated spells like for subscriptions, but in general humans should be approving when their money is moved around). 
+
+### Gateways
+
+Pretty much any computing machine that can connect to another computing machine can be used as a gateway.
+In fact this means that you can send messages through offline transports like BLE, NFC, RFID, QR Code, OCR, etc.
+I haven't really thought through the ramifications of a fully offline MAGICal system, but it should be possible.
+
+### Resolvers
+
+Resolvers have two responsibilities.
+They are the custodians of MAGICal identities, and they either move money around, expend magic power, or both.
+If they move money around they will have to be responsible for the legal ramifications of that.
+If they expend magic power they'll have to adhere to some TBD rules to make it so that users don't end up with fifty different mps to keep track of.
+
+## Contributing
+
+To add to this repo, feel free to make a [pull request][pr].
+
+### Caster protocol
+
+Since fulfilling the caster protocol is platform dependent, there might be several for each language.
+Caster implementations need to look like this:
+
+```mermaid
+flowchart LR
+    A[Input]--> B[CasterJSON]
+    B-->C[Transport]
+```
+
+Where input could be tapping a button on mobile, typing a command in a chatbot, controller input in a game, accelerometer data in a hardware device, etc.
+CasterJSON is this:
+
+```json
+{
+  timestamp: string,
+  spell: string,
+  casterUUID: string,
+  totalCost: non-zero int,
+  mp: bool,
+  ordinal: int,
+  casterSignature: signature,
+  gateways: []
+}
+```
+
+And transport is something like https, websocket, udp, etc.
+
+### Gateway protocol
+
+Gateways have a pretty straightforward flow:
+
+```mermaid
+flowchart LR
+    A[Transport]--> B[GatewayJSON]
+    B-->C[Transport]
+```
+
+Where transports are still transports, and GatewayJSON looks like:
+
+```json
+{
+  timestamp: string,
+  spell: string,
+  uuid: string,
+  minimumCost: non-zero int,
+  ordinal: int,
+  signature: signature
+}
+```
+
+And is added to the gateways array in the spell payload.
+
+### Resolvers protocol
+
+```mermaid
+flowchart LR
+    A[Transport]--> B[Resolver]
+    B-->|Resolve Spell|B
+    B-->A
+```
+
+Resolvers have the same transport needs as gateways, and have an additional function:
+
+`resolveSpell(spell) -> {success: bool}`
+
+Where spell is the spellPayload:
+
+```json
+{
+  timestamp: string,
+  spell: string,
+  casterUUID: string,
+  totalCost: non-zero int,
+  mp: bool,
+  ordinal: int,
+  casterSignature: signature,
+  gateways: [{
+    timestamp: string,
+    uuid: string,
+    minimumCost: non-zero int,
+    ordinal: int,
+    signature: signature
+  },{
+    timestamp: string,
+    uuid: string,
+    minimumCost: non-zero int,
+    ordinal: int,
+    **currentLocation**: geolocation,
+    signature: signature
+  }]
+}
+```
+
+It is left to implementers to write how spells are checked for resolution. 
+
+## Examples
+
+Due to MAGIC's interoperability, the permutations of possible MAGICal pipelines in this repo is combinatorial, and creating a test for all of them is beyond our present scope.
+Still, examples will be provided as casters, gateways, and resolvers are built and some way of putting them together will be found.
+Contributors are highly encouraged to put together any example they want for any use case no matter how impossible it may seem.
+
+## Further reading
+
+(Coming Soon)
+
 [sessionless]: https://www.github.com/planet-nine-app/sessionless
 [voltron]: https://www.youtube.com/watch?v=2M3cyCFWChg
 [ux]: https://www.github.com/planet-nine-app/MAGIC/README-UX.md
 [cocoapods]: https://cocoapods.org
 [maven]: https://maven.apache.org
 [npm]: https://npmjs.org
+[pr]: https://github.com/planet-nine-app/sessionless/pulls
+
