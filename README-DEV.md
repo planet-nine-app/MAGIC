@@ -445,6 +445,19 @@ Where spell is the spellPayload:
 
 It is left to implementers to write how spells are checked for resolution. 
 
+### Spell protocol
+
+In my heart of hearts I would like there to be different "flavors" of MAGIC, and to that end I'm hesitant to put too much structure around what constitutes a spell.
+At the very least there needs to be *something* that tells each gateway how to get to the next gateway.
+For transports like https there's a well-established protocol for that, but for transports like BLE it's a bit more nebulous.
+
+Similarly should spells allow arbitrary input from casters, or specific casters.
+If it's the latter, how do we limit that being spoofed from different devices?
+Should we?
+
+All this is to say that the spell protocol, should one arise, has yet to be established.
+Questions, comments, and concerns welcome.
+
 ## Examples
 
 Due to MAGIC's interoperability, the permutations of possible MAGICal pipelines in this repo is combinatorial, and creating a test for all of them is beyond our present scope.
