@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "imports": { "sessionless-node": "npm:sessionless-node@^0.10.1" }
+}
