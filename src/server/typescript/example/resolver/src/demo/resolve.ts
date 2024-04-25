@@ -5,5 +5,5 @@ import { saveUser } from "../persistence";
 export const resolve = (request: Request) => {
 
 
-  return {};
+  return {doubleCool: true};
 };

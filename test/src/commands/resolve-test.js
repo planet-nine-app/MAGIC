@@ -4,7 +4,7 @@ import resolve from '../requests/resolve.js';
 
 const resolveTest = async (color, language) => {
   await register(color)
-  .then((res) => doCoolStuff(res.body))
+  .then((res) => resolve(res.body))
   .then((res) => {
     if(!res.doubleCool) {
       throw(chalk.red('OH NO YOUR SHIT BLEW UP AGAIN!!!!'));
