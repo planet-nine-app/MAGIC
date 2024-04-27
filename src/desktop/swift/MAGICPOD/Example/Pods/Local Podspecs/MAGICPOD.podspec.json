@@ -1,0 +1,27 @@
+{
+  "name": "MAGICPOD",
+  "version": "0.1.0",
+  "summary": "A short description of MAGICPOD.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/zach-planet-nine/MAGICPOD",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "zach-planet-nine": "zach@planetnine.app"
+  },
+  "source": {
+    "git": "https://github.com/zach-planet-nine/MAGICPOD.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "osx": "10.10"
+  },
+  "source_files": "MAGICPOD/Classes/**/*",
+  "dependencies": {
+    "Sessionless": [
+      "0.10.1"
+    ]
+  }
+}

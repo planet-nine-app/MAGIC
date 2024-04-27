@@ -1,0 +1,6 @@
+framework module Pods_MAGICPOD_Tests {
+  umbrella header "Pods-MAGICPOD_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}

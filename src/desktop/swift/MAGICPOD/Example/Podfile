@@ -1,0 +1,13 @@
+use_frameworks!
+
+target 'MAGICPOD_Example' do
+  pod 'Sessionless', :path => '../../../../../../sessionless/src/swift/client-ios/Sessionless'
+  pod 'MAGICPOD', :path => '../'
+
+  target 'MAGICPOD_Tests' do
+    inherit! :search_paths
+
+    pod 'Quick', '~> 2.2.0'
+    pod 'Nimble', '~> 10.0.0'
+  end
+end
