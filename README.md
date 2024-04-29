@@ -119,8 +119,37 @@ This was easy enough, let's introduce a globally available resource called Power
 This provides a cost for magical transactions, and fits the lore quite nicely. 
 
 It also has some interesting properties.
-MP is non-transferrable, so 
+MP is non-transferrable, so when you spend it it just goes away only to recharge over time.
+That means people can't buy or trade MP.
+It also means, unlike money, there's an opportunity cost to not spending MP since if it maxes out, you stop accruing it.
+
+This opportunity cost is really interesting from an economic standpoint since it's the _opposite_ of what is happening in the world of crypto.
+Since Bitcoin et al's value tends to go up faster than inflation, the lowest value it has is when you acquire it, and so there's no incentive to spend it.
+This makes it great as a store of value, but lousy as a medium of exchange. 
+Could MP provide the counterpoint to crypto, and be that medium of exchange?
+
+[I said I wasn't going to go there, but here's the link to that blog post again.][blog].
+
+Put the money aspect aside again for a moment.
+Since MP doesn't transfer, something of some sort of value needs to be transacted. 
+So I made up a token I call Nineum, and made up some rules for its distribution. 
+[Nineum is non-fungible tokens done right, and in such a way to (eventually) enrich their owners.][nineum]
+
+## So what is MAGIC again?
+
+So MAGIC (Multi-device Asynchronous Generic Input/output Consensus) is a protocol for getting multiple computing devices to agree that a transaction has taken place.
+That transaction can involve money, or involve MP.
+The protocol is open sourced, and available under a broad license so that anyone can use it so long as they agree that their MAGIC transactions be interoperable with other systems' MAGIC transactions.
+That way additions to the protocol benefit all the users of the protocol. 
+
+Below are links to the developer and UX READMEs for MAGIC:
+
+| Dev          | UX          | Product     |
+|--------------|-------------|-------------|
+| [README-DEV] | [README-UX] | coming soon |
 
 [sessionless]: https://www.github.com/planet-nine-app/sessionless
 [magic-patent]: https://www.planetnineapp.com/magic
 [blog]: https://www.planetnineapp.com/blog
+[README-DEV]: ./README-DEV.md
+[README-UX]: ./README-UX.md
