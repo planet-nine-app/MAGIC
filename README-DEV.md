@@ -362,7 +362,7 @@ flowchart LR
 Where input could be tapping a button on mobile, typing a command in a chatbot, controller input in a game, accelerometer data in a hardware device, etc.
 CasterJSON is this:
 
-```json
+```javascript
 {
   timestamp: string,
   spell: string,
@@ -389,7 +389,7 @@ flowchart LR
 
 Where transports are still transports, and GatewayJSON looks like:
 
-```json
+```javascript
 {
   timestamp: string,
   spell: string,
@@ -417,7 +417,7 @@ Resolvers have the same transport needs as gateways, and have an additional func
 
 Where spell is the spellPayload:
 
-```json
+```javascript
 {
   timestamp: string,
   spell: string,

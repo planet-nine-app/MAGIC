@@ -5,10 +5,10 @@
 Yes, seriously. 
 
 It is, in essence, a generalization of the process by which bank settlement happens with debit and credit card purchases. 
-Though purchasing is one of its use cases, MAGIC can allow for a whole host of interesting interactions between that have never interacted before, and need not interact again.
-It is always a little contrived to call technology magic, but as David Copperfield said at a show of his I went to as a kid, "we all know that magic isn't real, but if it was, here's what it would look like."
+Though purchasing is one of its use cases, MAGIC can allow for a whole host of interesting interactions between devices that have never interacted before, and need not interact again.
+It is always a little contrived to call technology magic, but as David Copperfield said at a show of his I went to as a kid, "we all know that magic isn't real, but if it was, here's what it might look like."
 
-<MAGIC video>
+[Here is a simple video of what MAGIC can do.]: https://www.planetnineapp.com/magic-demo-1
 
 ## Overview
 
