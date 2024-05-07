@@ -10,7 +10,8 @@ This example is utilizing the [NRF52840 USB dongle](https://www.nordicsemi.com/P
 
 ## Create Docker container
 ```
-docker build -t nrfconnect-sdk .
+# docker build -t nrfconnect-sdk .
+docker build --platform linux/amd64 -t nrfconnect-sdk .
 ```
 > **&#9432; Note** The container build will take a significant amount of time to complete
 
@@ -19,6 +20,8 @@ For a pristine build (clean build but longer build time) run the following comma
 ```
 docker run --rm --mount type=bind,source=$pwd/project,target=/workdir/project -w /workdir/project nrfconnect-sdk west build -p always -b nrf52840dongle_nrf52840
 ```
+
+## Note: $pwd is a Linux command that prints the current directory path from root. If you're on MacOS or Windows, substitute that path in instead.
 
 For faster builds remove the pristine option `-p always`.
 ```

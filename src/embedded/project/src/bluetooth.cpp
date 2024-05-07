@@ -1,4 +1,5 @@
 #include "bluetooth.h"
+#include "gpio.h"
 
 #include <zephyr/settings/settings.h>
 #include <zephyr/bluetooth/bluetooth.h>
@@ -6,8 +7,10 @@
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/gap.h>
 #include <zephyr/bluetooth/services/bas.h>
 #include <stdio.h>
+#include <zephyr/kernel.h>
 
 // Magic BLE UUID
 //
@@ -26,8 +29,9 @@ namespace bluetooth
 {
 
 /* Custom Service Variables */
-#define BT_UUID_CUSTOM_SERVICE_VAL \
+/*#define BT_UUID_CUSTOM_SERVICE_VAL \
     BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef0)
+
 
     static const struct bt_uuid_128 vnd_uuid = BT_UUID_INIT_128(
         BT_UUID_CUSTOM_SERVICE_VAL);
@@ -46,12 +50,61 @@ namespace bluetooth
 
     static const struct bt_uuid_128 vnd_signed_uuid = BT_UUID_INIT_128(
         BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef5));
+*/
+#define BT_UUID_CUSTOM_SERVICE_VAL \
+    BT_UUID_128_ENCODE(0x5995AB90, 0x709A, 0x4735, 0xAAF2, 0xDF2C8B061BB4)
+
+    static const struct bt_uuid_128 vnd_uuid = BT_UUID_INIT_128(
+        BT_UUID_CUSTOM_SERVICE_VAL);
+
+    static const struct bt_uuid_128 vnd_enc_uuid = BT_UUID_INIT_128(
+        BT_UUID_128_ENCODE(0x3558E2EC, 0xBF6C, 0x41F0, 0xBC9F, 0xEBB51B8C87CE));
+
+    static const struct bt_uuid_128 vnd_auth_uuid = BT_UUID_INIT_128(
+        BT_UUID_128_ENCODE(0x4D8D84E5, 0x5889, 0x4310, 0x80BF, 0x0D44DCB49762));
+
+    static const struct bt_uuid_128 vnd_long_uuid = BT_UUID_INIT_128(
+        BT_UUID_128_ENCODE(0xCD6984D2, 0x5055, 0x4033, 0xA42E, 0xBB039FC6EF6B));
+
+    static const struct bt_uuid_128 vnd_write_cmd_uuid = BT_UUID_INIT_128(
+        BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef4));
+
+    static const struct bt_uuid_128 vnd_signed_uuid = BT_UUID_INIT_128(
+        BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef5));
 
     static constexpr int VND_MAX_LEN = 20;
     static uint8_t vnd_value[VND_MAX_LEN + 1] = {'V', 'e', 'n', 'd', 'o', 'r'};
     static uint8_t vnd_auth_value[VND_MAX_LEN + 1] = {'V', 'e', 'n', 'd', 'o', 'r'};
     static uint8_t vnd_wwr_value[VND_MAX_LEN + 1] = {'V', 'e', 'n', 'd', 'o', 'r'};
+    static bt_addr_le_t gateway_addr;
+    static struct bt_conn *gateway_conn;
 
+    const struct gpio::led_value red2 = gpio::make_led_value(1, 0, 0);
+    const struct gpio::led_value green2 = gpio::make_led_value(0, 1, 0);
+    const struct gpio::led_value blue2 = gpio::make_led_value(0, 0, 1);
+    const struct gpio::led_value purple2 = gpio::make_led_value(1, 0, 1);
+
+
+    gpio::led_value red3()
+    {
+        return gpio::make_led_value(1, 0, 0);
+    }
+
+    gpio::led_value green3()
+    {
+        return gpio::make_led_value(0, 1, 0);
+    }
+
+    gpio::led_value blue3()
+    {
+        return gpio::make_led_value(0, 0, 1);
+    }
+
+    gpio::led_value purple3()
+    {
+        return gpio::make_led_value(1, 0, 1);
+    }
+    
     ssize_t read_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
                      void *buf, uint16_t len, uint16_t offset)
     {
@@ -209,7 +262,7 @@ namespace bluetooth
     }
 
     /* Vendor Primary Service Declaration */
-    BT_GATT_SERVICE_DEFINE(vnd_svc,
+/*    BT_GATT_SERVICE_DEFINE(vnd_svc,
         BT_GATT_PRIMARY_SERVICE((void*)&vnd_uuid),
         BT_GATT_CHARACTERISTIC(&vnd_enc_uuid.uuid,
                                 BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE | BT_GATT_CHRC_INDICATE,
@@ -249,15 +302,17 @@ namespace bluetooth
 
     static struct bt_gatt_cb gatt_callbacks = {
         .att_mtu_updated = mtu_updated};
-
-    void connected(struct bt_conn *conn, uint8_t error)
+*/
+/*    void connected(struct bt_conn *conn, uint8_t error)
     {
         if (error)
         {
+            gpio::set_rgb_led(1, 1, 0);
             printf("Connection failed (error 0x%02x)\n", error);
             return;
         }
 
+        gpio::set_rgb_led(0, 1, 1);
         printf("Connected\n");
     }
 
@@ -270,7 +325,7 @@ namespace bluetooth
         .connected = connected,
         .disconnected = disconnected,
     };
-
+*/
     void bt_ready()
     {
         printf("Bluetooth initialized\n");
@@ -280,14 +335,15 @@ namespace bluetooth
             settings_load();
         }
 
-        const auto &name = BT_LE_ADV_CONN_NAME;
+     /*   const auto &name = BT_LE_ADV_CONN_NAME;
         const int err = bt_le_adv_start(name, ad, ARRAY_SIZE(ad), NULL, 0);
         if (err)
         {
             printf("Advertising failed to start (err %d)\n", err);
             return;
-        }
+        }*/
 
+        gpio::display_led_values(purple3(), blue3(), blue3());
         printf("Advertising successfully started\n");
     }
 
@@ -329,6 +385,118 @@ namespace bluetooth
         bt_bas_set_battery_level(battery_level);
     }
 
+        const struct bt_conn_le_create_param *param = BT_CONN_LE_CREATE_PARAM(BT_CONN_LE_OPT_NONE, BT_GAP_SCAN_FAST_INTERVAL, BT_GAP_SCAN_FAST_INTERVAL);
+        const struct bt_le_conn_param *other_param = BT_LE_CONN_PARAM_DEFAULT;
+
+
+    static void connect() {
+        int err;
+
+        err = bt_conn_le_create(&gateway_addr, /*BT_CONN_LE_CREATE_CONN*/ param, /*BT_LE_CONN_PARAM_DEFAULT*/ other_param, &gateway_conn);
+        if (err) {
+            printk("Create conn failed (err %d)\n", err);
+        }
+        gpio::display_led_values(blue3(), green3(), blue3());
+    }
+
+    static void connected(struct bt_conn *conn, uint8_t conn_err) {
+	if (!conn_err) {
+	  printk("Connected.\n");
+	  //k_event_set(&event, EV_CONNECTED);
+	} else {
+	  printk("Failed to connect.\n");
+	  //bt_conn_unref(gateway_conn);
+	  //gateway_conn = NULL;
+	}
+    }
+
+    static void disconnected(struct bt_conn *conn, uint8_t reason) {
+	printk("Disconnected.\n");
+	//bt_conn_unref(gateway_conn);
+	//gateway_conn = NULL;
+    }
+
+    BT_CONN_CB_DEFINE(conn_callbacks) = {
+	  .connected = connected,
+	  .disconnected = disconnected,
+    };
+
+    static bool gateway_found_cb(struct bt_data *data, void *user_data) {
+	struct bt_uuid_128 found_uuid;
+	int err;
+
+        gpio::display_led_values(purple3(), purple3(), purple3());
+
+	// we are only interested in ads with a single 128-bit UUID
+	if (data->data_len != BT_UUID_SIZE_128) {
+	  return true;
+	}
+
+	// check if the found UUID matches
+	bt_uuid_create(&found_uuid.uuid, data->data, BT_UUID_SIZE_128);
+	if (bt_uuid_cmp(&found_uuid.uuid, &vnd_uuid.uuid) != 0) {
+          gpio::display_led_values(blue3(), blue3(), blue3());
+	  return true;
+	} else {
+	  printk("Gateway service found.\n");
+	memcpy(&gateway_addr, user_data, BT_ADDR_LE_SIZE);
+	  bt_le_scan_stop();
+	//  k_event_set(&event, EV_LED_FOUND);
+        // Connect
+      
+          gpio::display_led_values(green3(), green3(), green3());
+          connect();
+    
+	  return false;
+	}
+    }
+
+    static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_type,
+                         struct net_buf_simple *ad)
+    {
+        gpio::display_led_values(purple3(), green3(), purple3());
+
+	char addr_str[BT_ADDR_LE_STR_LEN];
+
+	bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
+
+	printk("Device found: %s (RSSI %d)\n", addr_str, rssi);
+  
+        bt_data_parse(ad, gateway_found_cb, (void *)addr);
+    }
+
+    bool start_scan()
+    {
+       /*gpio::set_rgb_led(0, 1, 1);
+       k_busy_wait(5000000);
+       gpio::display_led_values(red3(), red3(), red3());
+       k_busy_wait(5000000); 
+       gpio::display_led_values(red3(), green3(), blue3());*/
+       int err;
+       struct bt_le_scan_param scan_param =
+       {
+ 	  .type = BT_LE_SCAN_TYPE_ACTIVE,
+ 	  .options = BT_LE_SCAN_OPT_FILTER_DUPLICATE,
+ 	  .interval = BT_GAP_SCAN_FAST_INTERVAL,
+ 	  .window = BT_GAP_SCAN_FAST_WINDOW,
+       };
+
+       gpio::display_led_values(blue3(), blue3(), blue3());
+       err = bt_le_scan_start(&scan_param, device_found);
+
+       gpio::display_led_values(purple3(), purple3(), purple3());
+       if (err) {
+           printf("Starting scanning failed (err %d)\n", err);
+           return false;
+       } 
+       return true;
+    }
+
+    void purpled()
+    {
+        gpio::set_rgb_led(1, 0, 1);
+    }
+
     bool initialize()
     {
         const int err = bt_enable(NULL);
@@ -340,7 +508,13 @@ namespace bluetooth
 
         bt_ready();
 
-        bt_gatt_cb_register(&gatt_callbacks);
+/*        if (!gpio::initialize())
+        {
+            printf("Error: Failed to init GPIO\n");
+            return -1;
+        }
+*/
+/*        bt_gatt_cb_register(&gatt_callbacks);
 
         bt_conn_auth_cb_register(&auth_cb_display);
 
@@ -351,7 +525,7 @@ namespace bluetooth
         bt_uuid_to_str(&vnd_enc_uuid.uuid, str, sizeof(str));
         printf("Indicate VND attr %p (UUID %s)\n", vnd_ind_attr, str);
         // End code for indications
-
+*/
         return true;
     }
 }
