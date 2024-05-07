@@ -153,3 +153,5 @@ Below are links to the developer and UX READMEs for MAGIC:
 [blog]: https://www.planetnineapp.com/blog
 [README-DEV]: ./README-DEV.md
 [README-UX]: ./README-UX.md
+[Here is a simple video of what MAGIC can do.]: https://www.planetnineapp.com/magic-demo-1
+
