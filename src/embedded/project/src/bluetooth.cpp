@@ -11,6 +11,7 @@
 #include <zephyr/bluetooth/services/bas.h>
 #include <stdio.h>
 #include <zephyr/kernel.h>
+#include <string>
 
 // Magic BLE UUID
 //
@@ -56,6 +57,7 @@ namespace bluetooth
 
     static const struct bt_uuid_128 vnd_uuid = BT_UUID_INIT_128(
         BT_UUID_CUSTOM_SERVICE_VAL);
+
 
     static const struct bt_uuid_128 vnd_enc_uuid = BT_UUID_INIT_128(
         BT_UUID_128_ENCODE(0x3558E2EC, 0xBF6C, 0x41F0, 0xBC9F, 0xEBB51B8C87CE));
@@ -103,6 +105,16 @@ namespace bluetooth
     gpio::led_value purple3()
     {
         return gpio::make_led_value(1, 0, 1);
+    }
+
+    gpio::led_value orange3()
+    {
+        return gpio::make_led_value(1, 1, 0);
+    }
+
+    gpio::led_value cyan3()
+    {
+        return gpio::make_led_value(0, 1, 1);
     }
     
     ssize_t read_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
@@ -399,9 +411,71 @@ namespace bluetooth
         gpio::display_led_values(blue3(), green3(), blue3());
     }
 
+    static uint8_t read_func(struct bt_conn *conn, uint8_t err, struct bt_gatt_read_params *params, const void *data, uint16_t length) {
+        const uint8_t bytes = *((uint8_t *)data);
+        const std::string value = std::to_string(bytes);;
+        const std::string magic = "magic";
+        if (value == magic) {
+            gpio::display_led_values(green3(), green3(), green3());
+        } else {
+            gpio::display_led_values(red3(), red3(), red3());
+        }
+	return BT_GATT_ITER_STOP;
+    }
+
+    static uint16_t magic_state_handle;
+    static struct bt_conn *magic_conn;
+
+    static void read_magic_state() {
+	printk("Reading current LED state\n");
+	static struct bt_gatt_read_params read_params;
+	read_params.handle_count = 1;
+	read_params.single.handle = magic_state_handle;
+	read_params.single.offset = 0;
+	read_params.func = read_func;
+
+        gpio::display_led_value(cyan3());
+
+	bt_gatt_read(magic_conn, &read_params);
+    }
+
+    uint8_t magic_service_discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, struct bt_gatt_discover_params *prms) {
+	magic_state_handle = bt_gatt_attr_value_handle(attr);
+
+        gpio::display_led_value(orange3());
+
+        read_magic_state();
+
+	return BT_GATT_ITER_STOP;
+    }
+
+    static struct bt_gatt_discover_params discover_params;
+
+    void discover_magic_service() 
+    {
+	int err;
+
+        gpio::display_led_value(purple3());
+        
+        const struct bt_uuid_128 magic_read_char_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x3558E2EC, 0xBF6C, 0x41F0, 0xBC9F, 0xEBB51B8C87CE));
+
+	discover_params.uuid = &magic_read_char_uuid.uuid;
+	discover_params.func = magic_service_discover_cb;
+	discover_params.start_handle = BT_ATT_FIRST_ATTRIBUTE_HANDLE;
+	discover_params.end_handle = BT_ATT_LAST_ATTRIBUTE_HANDLE;
+	discover_params.type = BT_GATT_DISCOVER_CHARACTERISTIC;
+
+	err = bt_gatt_discover(magic_conn, &discover_params);
+	if (err) {
+	  printk("Discover failed(err %d)\n", err);
+	  return;
+	}
+    }
+
     static void connected(struct bt_conn *conn, uint8_t conn_err) {
 	if (!conn_err) {
 	  printk("Connected.\n");
+          gpio::display_led_values(orange3(), cyan3(), orange3());
 	  //k_event_set(&event, EV_CONNECTED);
 	} else {
 	  printk("Failed to connect.\n");
@@ -425,16 +499,22 @@ namespace bluetooth
 	struct bt_uuid_128 found_uuid;
 	int err;
 
-        gpio::display_led_values(purple3(), purple3(), purple3());
-
 	// we are only interested in ads with a single 128-bit UUID
 	if (data->data_len != BT_UUID_SIZE_128) {
+          gpio::display_led_value(red3());
 	  return true;
 	}
 
+        const struct bt_uuid_128 magic_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x5995AB90, 0x709A, 0x4735, 0xAAF2, 0xDF2C8B061BB4)); 
+
 	// check if the found UUID matches
 	bt_uuid_create(&found_uuid.uuid, data->data, BT_UUID_SIZE_128);
-	if (bt_uuid_cmp(&found_uuid.uuid, &vnd_uuid.uuid) != 0) {
+
+        if (found_uuid.val[0] == magic_uuid.val[0]) {
+          gpio::display_led_value(green3());
+        }
+
+	if (bt_uuid_cmp(&found_uuid.uuid, &magic_uuid.uuid) != 0) {
           gpio::display_led_values(blue3(), blue3(), blue3());
 	  return true;
 	} else {
