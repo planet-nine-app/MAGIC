@@ -10,8 +10,8 @@
 #include <zephyr/bluetooth/gap.h>
 #include <zephyr/bluetooth/services/bas.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <zephyr/kernel.h>
-#include <string>
 
 // Magic BLE UUID
 //
@@ -404,6 +404,7 @@ namespace bluetooth
     static void connect() {
         int err;
 
+        gpio::display_led_value(blue3());
         err = bt_conn_le_create(&gateway_addr, /*BT_CONN_LE_CREATE_CONN*/ param, /*BT_LE_CONN_PARAM_DEFAULT*/ other_param, &gateway_conn);
         if (err) {
             printk("Create conn failed (err %d)\n", err);
@@ -411,10 +412,28 @@ namespace bluetooth
         gpio::display_led_values(blue3(), green3(), blue3());
     }
 
+    char * uint8_to_char(uint8_t *data, size_t size) {
+	char *result = (char *)malloc(size + 1); // Allocate memory for the char array (+1 for null terminator)
+	if (result == NULL) {
+	    return NULL; // Allocation failed
+	}
+	for (size_t i = 0; i < size; i++) {
+	    result[i] = (char)data[i]; // Copy uint8_t elements to char array
+	}
+	result[size] = '\0'; // Add null terminator
+	return result;
+    }
+
     static uint8_t read_func(struct bt_conn *conn, uint8_t err, struct bt_gatt_read_params *params, const void *data, uint16_t length) {
-        const uint8_t bytes = *((uint8_t *)data);
-        const std::string value = std::to_string(bytes);;
-        const std::string magic = "magic";
+        gpio::display_led_value(orange3());
+        const uint8_t *bytes = ((uint8_t *)data);
+        gpio::display_led_value(red3());
+//        const std::string value = std::to_string(bytes);;
+//        const std::string magic = "magic";
+        char *value = uint8_to_char(bytes, sizeof(bytes));
+        //u8_to_dec(&value, sizeof(bytes) - 1, bytes);
+        char *magic = "magic";
+        gpio::display_led_values(orange3(), red3(), orange3());
         if (value == magic) {
             gpio::display_led_values(green3(), green3(), green3());
         } else {
@@ -426,9 +445,12 @@ namespace bluetooth
     static uint16_t magic_state_handle;
     static struct bt_conn *magic_conn;
 
+    static struct bt_gatt_read_params read_params;
+
     static void read_magic_state() {
+        gpio::display_led_value(purple3());
+        gpio::display_led_value(cyan3());
 	printk("Reading current LED state\n");
-	static struct bt_gatt_read_params read_params;
 	read_params.handle_count = 1;
 	read_params.single.handle = magic_state_handle;
 	read_params.single.offset = 0;
@@ -439,12 +461,48 @@ namespace bluetooth
 	bt_gatt_read(magic_conn, &read_params);
     }
 
+    static void write_magic_state() {
+        gpio::display_led_value(purple3());
+        gpio::display_led_value(cyan3());
+
+        static struct bt_gatt_write_params write_params;
+
+        // Define a memory pool
+	K_MEM_POOL_DEFINE(my_pool, 1024, 1024, 1, 4);
+
+	// String literal
+	const char *str = "do magic!";
+
+	// Allocate memory from the memory pool
+	void *data = k_mem_pool_alloc(&my_pool, strlen(str) + 1, K_NO_WAIT);
+	if (data != NULL) {
+	    // Copy string literal to the allocated memory
+	    memcpy(data, str, strlen(str) + 1);
+
+	    write_params.data = &led_state;
+	}
+
+	write_params.handle = led_state_handle;
+	write_params.offset = 0;
+	write_params.length = 1;
+	write_params.func = write_func;
+
+        gpio::display_led_values(orange3(), orange3(), orange3());
+	
+        bt_gatt_write(led_conn, &write_params);
+
+        gpio::display_led_value(green());
+
+        k_free(data);
+    }
+
     uint8_t magic_service_discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, struct bt_gatt_discover_params *prms) {
 	magic_state_handle = bt_gatt_attr_value_handle(attr);
 
         gpio::display_led_value(orange3());
 
-        read_magic_state();
+//        read_magic_state();
+        write_magic_state();
 
 	return BT_GATT_ITER_STOP;
     }
@@ -458,8 +516,11 @@ namespace bluetooth
         gpio::display_led_value(purple3());
         
         const struct bt_uuid_128 magic_read_char_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x3558E2EC, 0xBF6C, 0x41F0, 0xBC9F, 0xEBB51B8C87CE));
+        
+        const struct bt_uuid_128 magic_write_char_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x4D8D84E5, 0x5889, 0x4310, 0x80BF, 0x0D44DCB49762));
 
-	discover_params.uuid = &magic_read_char_uuid.uuid;
+//	discover_params.uuid = &magic_read_char_uuid.uuid;
+        discover_params.uuid = &magic_write_char_uuid.uuid;
 	discover_params.func = magic_service_discover_cb;
 	discover_params.start_handle = BT_ATT_FIRST_ATTRIBUTE_HANDLE;
 	discover_params.end_handle = BT_ATT_LAST_ATTRIBUTE_HANDLE;
@@ -476,6 +537,7 @@ namespace bluetooth
 	if (!conn_err) {
 	  printk("Connected.\n");
           gpio::display_led_values(orange3(), cyan3(), orange3());
+          discover_magic_service();
 	  //k_event_set(&event, EV_CONNECTED);
 	} else {
 	  printk("Failed to connect.\n");
@@ -506,6 +568,7 @@ namespace bluetooth
 	}
 
         const struct bt_uuid_128 magic_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x5995AB90, 0x709A, 0x4735, 0xAAF2, 0xDF2C8B061BB4)); 
+
 
 	// check if the found UUID matches
 	bt_uuid_create(&found_uuid.uuid, data->data, BT_UUID_SIZE_128);

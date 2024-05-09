@@ -86,10 +86,10 @@ namespace gpio
     {
         set_rgb_led(0, 0, 0);
         //sleep_for(milliseconds(250));
-        k_busy_wait(500000);
+        k_busy_wait(200000);
         set_rgb_led(value.r, value.g, value.b);
        // sleep_for(milliseconds(250));
-        k_busy_wait(500000);
+        k_busy_wait(200000);
     }
 
     void display_led_values(const led_value first, const led_value second, const led_value third) 
