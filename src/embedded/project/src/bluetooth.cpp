@@ -78,8 +78,8 @@ namespace bluetooth
     static uint8_t vnd_value[VND_MAX_LEN + 1] = {'V', 'e', 'n', 'd', 'o', 'r'};
     static uint8_t vnd_auth_value[VND_MAX_LEN + 1] = {'V', 'e', 'n', 'd', 'o', 'r'};
     static uint8_t vnd_wwr_value[VND_MAX_LEN + 1] = {'V', 'e', 'n', 'd', 'o', 'r'};
-    static bt_addr_le_t gateway_addr;
-    static struct bt_conn *gateway_conn;
+    static bt_addr_le_t magic_addr;
+    static struct bt_conn *magic_conn;
 
     const struct gpio::led_value red2 = gpio::make_led_value(1, 0, 0);
     const struct gpio::led_value green2 = gpio::make_led_value(0, 1, 0);
@@ -405,14 +405,14 @@ namespace bluetooth
         int err;
 
         gpio::display_led_value(blue3());
-        err = bt_conn_le_create(&gateway_addr, /*BT_CONN_LE_CREATE_CONN*/ param, /*BT_LE_CONN_PARAM_DEFAULT*/ other_param, &gateway_conn);
+        err = bt_conn_le_create(&magic_addr, /*BT_CONN_LE_CREATE_CONN*/ param, /*BT_LE_CONN_PARAM_DEFAULT*/ other_param, &magic_conn);
         if (err) {
             printk("Create conn failed (err %d)\n", err);
         }
-        gpio::display_led_values(blue3(), green3(), blue3());
+        //gpio::display_led_values(blue3(), green3(), blue3());
     }
 
-    char * uint8_to_char(uint8_t *data, size_t size) {
+/*    char * uint8_to_char(uint8_t *data, size_t size) {
 	char *result = (char *)malloc(size + 1); // Allocate memory for the char array (+1 for null terminator)
 	if (result == NULL) {
 	    return NULL; // Allocation failed
@@ -423,27 +423,26 @@ namespace bluetooth
 	result[size] = '\0'; // Add null terminator
 	return result;
     }
-
+*/
     static uint8_t read_func(struct bt_conn *conn, uint8_t err, struct bt_gatt_read_params *params, const void *data, uint16_t length) {
         gpio::display_led_value(orange3());
         const uint8_t *bytes = ((uint8_t *)data);
         gpio::display_led_value(red3());
 //        const std::string value = std::to_string(bytes);;
 //        const std::string magic = "magic";
-        char *value = uint8_to_char(bytes, sizeof(bytes));
+//        char *value = uint8_to_char(bytes, sizeof(bytes));
         //u8_to_dec(&value, sizeof(bytes) - 1, bytes);
-        char *magic = "magic";
-        gpio::display_led_values(orange3(), red3(), orange3());
-        if (value == magic) {
+//        char *magic = "magic";
+//        gpio::display_led_values(orange3(), red3(), orange3());
+/*        if (value == magic) {
             gpio::display_led_values(green3(), green3(), green3());
         } else {
             gpio::display_led_values(red3(), red3(), red3());
         }
-	return BT_GATT_ITER_STOP;
+*/	return BT_GATT_ITER_STOP;
     }
 
     static uint16_t magic_state_handle;
-    static struct bt_conn *magic_conn;
 
     static struct bt_gatt_read_params read_params;
 
@@ -461,45 +460,56 @@ namespace bluetooth
 	bt_gatt_read(magic_conn, &read_params);
     }
 
+    static void write_func(struct bt_conn *conn, uint8_t err, struct bt_gatt_write_params *params)
+    {
+        if (err > 0) 
+        {
+            gpio::display_led_values(red3(), orange3(), red3());
+            return;
+        }
+        gpio::display_led_values(green3(), orange3(), green3());
+    }
+
     static void write_magic_state() {
+        gpio::set_led(1);
         gpio::display_led_value(purple3());
         gpio::display_led_value(cyan3());
 
         static struct bt_gatt_write_params write_params;
 
         // Define a memory pool
-	K_MEM_POOL_DEFINE(my_pool, 1024, 1024, 1, 4);
+	//K_MEM_POOL_DEFINE(my_pool, 1024, 1024, 1, 4);
 
 	// String literal
-	const char *str = "do magic!";
+	const uint8_t data[] = "do magic!";
 
 	// Allocate memory from the memory pool
-	void *data = k_mem_pool_alloc(&my_pool, strlen(str) + 1, K_NO_WAIT);
-	if (data != NULL) {
+	//void *data = k_mem_pool_alloc(&my_pool, strlen(str) + 1, K_NO_WAIT);
+	//if (data != NULL) {
 	    // Copy string literal to the allocated memory
-	    memcpy(data, str, strlen(str) + 1);
+	  //  memcpy(data, str, strlen(str) + 1);
 
-	    write_params.data = &led_state;
-	}
+	    write_params.data = &data;
+	//}
 
-	write_params.handle = led_state_handle;
+	write_params.handle = magic_state_handle;
 	write_params.offset = 0;
-	write_params.length = 1;
+	write_params.length = sizeof(data);
 	write_params.func = write_func;
 
         gpio::display_led_values(orange3(), orange3(), orange3());
 	
-        bt_gatt_write(led_conn, &write_params);
+        bt_gatt_write(magic_conn, &write_params);
 
-        gpio::display_led_value(green());
+        gpio::display_led_value(green3());
 
-        k_free(data);
+        //k_free(data);
     }
 
     uint8_t magic_service_discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, struct bt_gatt_discover_params *prms) {
 	magic_state_handle = bt_gatt_attr_value_handle(attr);
 
-        gpio::display_led_value(orange3());
+        gpio::display_led_values(orange3(), orange3(), green3());
 
 //        read_magic_state();
         write_magic_state();
@@ -508,6 +518,7 @@ namespace bluetooth
     }
 
     static struct bt_gatt_discover_params discover_params;
+        const struct bt_uuid_128 magic_write_char_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x4D8D84E5, 0x5889, 0x4310, 0x80BF, 0x0D44DCB49762));
 
     void discover_magic_service() 
     {
@@ -517,7 +528,6 @@ namespace bluetooth
         
         const struct bt_uuid_128 magic_read_char_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x3558E2EC, 0xBF6C, 0x41F0, 0xBC9F, 0xEBB51B8C87CE));
         
-        const struct bt_uuid_128 magic_write_char_uuid = BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x4D8D84E5, 0x5889, 0x4310, 0x80BF, 0x0D44DCB49762));
 
 //	discover_params.uuid = &magic_read_char_uuid.uuid;
         discover_params.uuid = &magic_write_char_uuid.uuid;
@@ -528,14 +538,17 @@ namespace bluetooth
 
 	err = bt_gatt_discover(magic_conn, &discover_params);
 	if (err) {
+          gpio::display_led_values(red3(), orange3(), red3());
 	  printk("Discover failed(err %d)\n", err);
 	  return;
 	}
+        gpio::display_led_values(green3(), cyan3(), green3());
     }
 
     static void connected(struct bt_conn *conn, uint8_t conn_err) {
 	if (!conn_err) {
 	  printk("Connected.\n");
+          magic_conn = conn;
           gpio::display_led_values(orange3(), cyan3(), orange3());
           discover_magic_service();
 	  //k_event_set(&event, EV_CONNECTED);
@@ -582,7 +595,7 @@ namespace bluetooth
 	  return true;
 	} else {
 	  printk("Gateway service found.\n");
-	memcpy(&gateway_addr, user_data, BT_ADDR_LE_SIZE);
+	memcpy(&magic_addr, user_data, BT_ADDR_LE_SIZE);
 	  bt_le_scan_stop();
 	//  k_event_set(&event, EV_LED_FOUND);
         // Connect
@@ -624,7 +637,7 @@ namespace bluetooth
  	  .window = BT_GAP_SCAN_FAST_WINDOW,
        };
 
-       gpio::display_led_values(blue3(), blue3(), blue3());
+//       gpio::display_led_values(blue3(), blue3(), blue3());
        err = bt_le_scan_start(&scan_param, device_found);
 
        gpio::display_led_values(purple3(), purple3(), purple3());
