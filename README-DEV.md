@@ -133,6 +133,8 @@ But moneyed pipelines are only one side of the use case story.
 What I think is arguably even more interesting is what MAGIC can do for systems that want interaction, but don't need money to change hands. 
 First, what kind of interaction is that?
 
+#### The demo
+
 Let's get a little pie in the sky. 
 Imagine you're watching a streamer playing a game on some unnamed streaming platform on your TV, and they get to a tough boss fight, and you want to send them an extra health potion to use during the fight. 
 Let's take a look at what would need to happen for that to happen:
