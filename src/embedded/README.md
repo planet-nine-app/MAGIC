@@ -36,5 +36,5 @@ docker run --rm --mount type=bind,source=$pwd/project,target=/workdir/project -w
 ## Run interactive Docker container
 To run the container in interactive mode. 
 ```
-docker run -it --rm --mount type=bind,source=$pwd/project,target=/workdir/project -w /workdir/project esp-zephyr /bin/bash
+docker run -it --rm --mount type=bind,source=$pwd/project,target=/workdir/project -w /workdir/project esp-zephyr
 ```
