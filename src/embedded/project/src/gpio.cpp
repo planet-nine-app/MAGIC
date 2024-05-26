@@ -6,11 +6,8 @@
 //#include <chrono>
 //#include <thread>
 
-static const struct gpio_dt_spec led0 = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
-static const struct gpio_dt_spec led1_r = GPIO_DT_SPEC_GET(DT_ALIAS(led1), gpios);
-static const struct gpio_dt_spec led1_g = GPIO_DT_SPEC_GET(DT_ALIAS(led2), gpios);
-static const struct gpio_dt_spec led1_b = GPIO_DT_SPEC_GET(DT_ALIAS(led3), gpios);
-static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(DT_ALIAS(sw0), gpios);
+static const struct gpio_dt_spec led0 = GPIO_DT_SPEC_GET_OR(DT_ALIAS(led0), gpios, {0});
+static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET_OR(DT_ALIAS(sw0), gpios, {0});
 
 namespace gpio
 {
@@ -37,7 +34,7 @@ namespace gpio
 
     bool initialize()
     {
-        gpio_dt_spec leds[] = {led0, led1_r, led1_g, led1_b};
+        gpio_dt_spec leds[] = {led0};
         for (auto &led : leds)
         {
             if (!configure_gpio(&led, GPIO_OUTPUT_INACTIVE))
@@ -66,42 +63,42 @@ namespace gpio
         gpio_pin_set_dt(&led0, state);
     }
 
-    void set_rgb_led(const int r, const int g, const int b)
-    {
-        gpio_pin_set_dt(&led1_r, r);
-        gpio_pin_set_dt(&led1_g, g);
-        gpio_pin_set_dt(&led1_b, b);
-    } 
+    // void set_rgb_led(const int r, const int g, const int b)
+    // {
+    //     gpio_pin_set_dt(&led1_r, r);
+    //     gpio_pin_set_dt(&led1_g, g);
+    //     gpio_pin_set_dt(&led1_b, b);
+    // } 
 
-    led_value make_led_value(const int r, const int g, const int b)
-    {
-        struct led_value value;
-        value.r = r;
-        value.g = g;
-        value.b = b;
-        return value;
-    }
+    // led_value make_led_value(const int r, const int g, const int b)
+    // {
+    //     struct led_value value;
+    //     value.r = r;
+    //     value.g = g;
+    //     value.b = b;
+    //     return value;
+    // }
 
-    void display_led_value(const led_value value)
-    {
-        set_rgb_led(0, 0, 0);
-        //sleep_for(milliseconds(250));
-        k_busy_wait(500000);
-        set_rgb_led(value.r, value.g, value.b);
-       // sleep_for(milliseconds(250));
-        k_busy_wait(500000);
-    }
+    // void display_led_value(const led_value value)
+    // {
+    //     set_rgb_led(0, 0, 0);
+    //     //sleep_for(milliseconds(250));
+    //     k_busy_wait(500000);
+    //     set_rgb_led(value.r, value.g, value.b);
+    //    // sleep_for(milliseconds(250));
+    //     k_busy_wait(500000);
+    // }
 
-    void display_led_values(const led_value first, const led_value second, const led_value third) 
-    {
-        display_led_value(first);
-        display_led_value(second);
-        display_led_value(third);
-    }
+    // void display_led_values(const led_value first, const led_value second, const led_value third) 
+    // {
+    //     display_led_value(first);
+    //     display_led_value(second);
+    //     display_led_value(third);
+    // }
 
-    void display_error() 
-    {
+    // void display_error() 
+    // {
        
 
-    }
+    // }
 }
