@@ -2,6 +2,8 @@
 //#include "foo.h"
 #include "gpio.h"
 
+#include "sessionless.hpp"
+
 #include <zephyr/kernel.h>
 #include <stdio.h>
 
@@ -19,15 +21,6 @@ int main()
         return -1;
     }
 
-
-/*    if (!foo::initialize())
-    {
-        printf("Error: Failed to init Bluetooth\n");
-        return -1;
-    }*/
-
-    gpio::set_rgb_led(0, 0, 1);
-    int rgb_state = 0;
     int previous_state = 0;
 
     const struct gpio::led_value red = gpio::make_led_value(1, 0, 0);
@@ -54,40 +47,30 @@ int main()
 
                 // TODO send Magic BLE packet
 
-                switch (rgb_state)
+                Keys keys;
+                if (!sessionless::generateKeys(keys))
                 {
-                case 0:
-                    //gpio::display_led_values(red, green, blue);
-                    //gpio::set_rgb_led(1, 0, 1);
-                    bluetooth::purpled();
-                    rgb_state = 1;
-                    break;
-                case 1:
-  //                  gpio::set_rgb_led(0, 1, 1);
-                    bool scanning;
-                    scanning = bluetooth::start_scan();
-                    if(!scanning) {
-                        gpio::display_led_values(red, red, red);
-                        rgb_state = 0;
-                        break;
-                    }
-                   /* scanning = foo::start_scan();
-                    if(!scanning) {
-                        gpio::set_rgb_led(1, 0, 0);
-                        rgb_state = 0;
-                        break;
-                    }*/
-  //                  gpio::display_led_values(green, red, green);
-                    rgb_state = 2;
-                    break;
-                case 2:
-                    gpio::set_rgb_led(0, 0, 1);
-                    rgb_state = 0;
-                    break;
-                default:
-                    break;
+                    gpio::set_led(0);
+                    continue;
                 }
- 
+
+                const char *msg = "Here is a message";
+                unsigned char signature[SIGNATURE_SIZE_BYTES];                
+                if (!sessionless::sign((unsigned char *)msg, sizeof(msg), keys.privateKey, signature))
+                {
+                    gpio::set_led(0);
+                    continue;
+                }
+
+                if (!sessionless::verifySignature(signature, keys.publicKey, 
+                                                  (unsigned char *)msg, sizeof(msg)))
+                {
+                    gpio::set_led(0);
+                    continue;
+                }
+
+                // Verified
+                gpio::set_led(1);
             }
             previous_state = button_state;
         }
