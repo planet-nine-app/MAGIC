@@ -8,10 +8,13 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 include(FetchContent)
 FetchContent_Declare(
   sessionless
-  # SOURCE_DIR     ${CMAKE_CURRENT_LIST_DIR}/../sessionless/src/cpp/client/lib
+
   GIT_REPOSITORY https://github.com/planet-nine-app/sessionless.git
   GIT_TAG        cpp-client-lib-0.2
   SOURCE_SUBDIR  src/cpp/client/lib
+
+  # To use a local folder comment out hte lines above and use this instead
+  # SOURCE_DIR     ${CMAKE_CURRENT_LIST_DIR}/../sessionless/src/cpp/client/lib
 )
 set(CMAKE_C_FLAGS -mlongcalls)
 FetchContent_MakeAvailable(sessionless)
