@@ -1,0 +1,11 @@
+{
+	"required": false,
+	"package": "com.hellbri8nger.magic.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ExampleMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

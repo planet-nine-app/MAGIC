@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "magic",
+	"version": "${version}",
+	"name": "Magic minecraft mod",
+	"description": "This is a minecraft mod written for MAGIC",
+	"authors": [
+		"HellBri8nger"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT License",
+	"icon": "assets/modid/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.hellbri8nger.magic.Magic"
+		],
+		"client": [
+			"com.hellbri8nger.magic.MagicClient"
+		]
+	},
+	"mixins": [
+		"magic.mixins.json",
+		{
+			"config": "modid.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"minecraft": "~1.20.6",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
