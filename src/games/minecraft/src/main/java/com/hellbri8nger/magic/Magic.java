@@ -32,10 +32,9 @@ public class Magic implements ModInitializer {
 				public void call(Object... args) {
 					LOGGER.info("Connected to the server");
 
-					socket.on("mcmod", new Emitter.Listener() {
+					socket.on("magic", new Emitter.Listener() {
 						@Override
 						public void call(Object... args) {
-							LOGGER.info((String) args[0]);
 							server.getPlayerManager().broadcast(Text.literal((String) args[0]), false);
 						}
 					});
