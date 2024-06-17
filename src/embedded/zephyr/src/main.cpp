@@ -1,7 +1,7 @@
 #include "bluetooth.h"
 //#include "foo.h"
 #include "gpio.h"
-
+#include "test.h"
 #include "sessionless.hpp"
 
 #include <zephyr/kernel.h>
@@ -9,7 +9,8 @@
 
 int main()
 {
-    if (!gpio::initialize())
+//    if (!gpio::initialize())
+    if(false)
     {
         printf("Error: Failed to init GPIO\n");
         return -1;
@@ -30,7 +31,7 @@ int main()
     static constexpr int32_t SLEEP_TIME_MS = 50;
 
     while (true)
-    {
+/*    {
     //    bluetooth::bas_notify();
 
         const int button_state = gpio::get_button();
@@ -76,6 +77,20 @@ int main()
         }
 
         k_msleep(SLEEP_TIME_MS);
+    }*/
+
+    while(true)
+    {
+        gpio::set_led(1);
+        k_msleep(1000);
+        int foo;
+        foo = test::test();
+        bool scanning;
+	scanning = bluetooth::start_scan();
+	if(!scanning) {
+            gpio::display_led_values(red, red, red);
+	    break;
+	}
     }
 
     return 0;
