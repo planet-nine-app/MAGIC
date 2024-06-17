@@ -1,0 +1,18 @@
+{
+  "name": "mocha",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "devDependencies": {
+    "chai": "^5.1.1",
+    "mocha": "^10.4.0",
+    "sessionless-node": "^0.10.1",
+    "superagent": "^9.0.2"
+  }
+}
