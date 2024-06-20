@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5840E57C74ADDE6A120D549E /* Pods_MAGICPOD_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 939EF7A4D0E6134587F9CB00 /* Pods_MAGICPOD_Tests.framework */; };
 		B3EE77B83998F22DEC7F0B0C /* Pods_MAGICPOD_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 422BBB0A59FF662E85AB6FE9 /* Pods_MAGICPOD_Example.framework */; };
+		CA22E1E22C1E665B0061F884 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA22E1E12C1E64300061F884 /* Network.swift */; };
 		ED83F67C20348A760038D96B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED83F67B20348A760038D96B /* AppDelegate.swift */; };
 		ED83F67E20348A760038D96B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED83F67D20348A760038D96B /* ViewController.swift */; };
 		ED83F68020348A760038D96B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED83F67F20348A760038D96B /* Assets.xcassets */; };
@@ -30,11 +31,12 @@
 		422BBB0A59FF662E85AB6FE9 /* Pods_MAGICPOD_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MAGICPOD_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD9ECD5DB27FA1D5A5149D9 /* Pods-MAGICPOD_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MAGICPOD_Example.debug.xcconfig"; path = "Target Support Files/Pods-MAGICPOD_Example/Pods-MAGICPOD_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		54E8BA94D89056A809E6F8EE /* Pods-MAGICPOD_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MAGICPOD_Tests.debug.xcconfig"; path = "Target Support Files/Pods-MAGICPOD_Tests/Pods-MAGICPOD_Tests.debug.xcconfig"; sourceTree = "<group>"; };
-		861F2E27B7B27D19B38EA22F /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		861F2E27B7B27D19B38EA22F /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		8723FA0B8D62C622271A1517 /* Pods-MAGICPOD_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MAGICPOD_Tests.release.xcconfig"; path = "Target Support Files/Pods-MAGICPOD_Tests/Pods-MAGICPOD_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		939EF7A4D0E6134587F9CB00 /* Pods_MAGICPOD_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MAGICPOD_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		93F6A0B06AE2A85F7C7A0887 /* MAGICPOD.podspec */ = {isa = PBXFileReference; includeInIndex = 1; name = MAGICPOD.podspec; path = ../MAGICPOD.podspec; sourceTree = "<group>"; };
-		AEEEBCAA28B688A28564520C /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		93F6A0B06AE2A85F7C7A0887 /* MAGICPOD.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = MAGICPOD.podspec; path = ../MAGICPOD.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		AEEEBCAA28B688A28564520C /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		CA22E1E12C1E64300061F884 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		DAD8902DEC7DE91188A112CA /* Pods-MAGICPOD_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MAGICPOD_Example.release.xcconfig"; path = "Target Support Files/Pods-MAGICPOD_Example/Pods-MAGICPOD_Example.release.xcconfig"; sourceTree = "<group>"; };
 		ED83F67820348A760038D96B /* MAGICPOD_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MAGICPOD_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED83F67B20348A760038D96B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -76,7 +78,6 @@
 				54E8BA94D89056A809E6F8EE /* Pods-MAGICPOD_Tests.debug.xcconfig */,
 				8723FA0B8D62C622271A1517 /* Pods-MAGICPOD_Tests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -115,6 +116,7 @@
 			children = (
 				ED83F67B20348A760038D96B /* AppDelegate.swift */,
 				ED83F67D20348A760038D96B /* ViewController.swift */,
+				CA22E1E12C1E64300061F884 /* Network.swift */,
 				ED83F67F20348A760038D96B /* Assets.xcassets */,
 				ED83F68120348A760038D96B /* Main.storyboard */,
 				ED83F68420348A760038D96B /* Info.plist */,
@@ -337,6 +339,7 @@
 			files = (
 				ED83F67E20348A760038D96B /* ViewController.swift in Sources */,
 				ED83F67C20348A760038D96B /* AppDelegate.swift in Sources */,
+				CA22E1E22C1E665B0061F884 /* Network.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,6 +489,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = MAGICPOD/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.cocoapods.demo.MAGICPOD;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -502,6 +506,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = MAGICPOD/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.cocoapods.demo.MAGICPOD;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;

@@ -84,7 +84,18 @@ class BLETwoWayPeripheral: NSObject, CBPeripheralManagerDelegate {
         
         manager.add(service)
         
-        manager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid]])
+        print("advertising: \(service.uuid)")
+        
+        manager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [service.uuid], CBAdvertisementDataLocalNameKey: "TwoWay"])
+    }
+    
+    func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
+        if let error = error {
+            print("Could not start advertising")
+            print(error)
+            return
+        }
+        print("Started advertising!")
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
@@ -101,8 +112,27 @@ class BLETwoWayPeripheral: NSObject, CBPeripheralManagerDelegate {
         print("Did receive write request")
         var valueString = ""
         for request in requests {
-            guard let value = request.value else { continue }
-            valueString = String(data: value, encoding: .utf8)!
+            print(request)
+            do {
+            } catch {
+                print(error)
+            }
+            /*guard*/ let value = request.value
+            valueString = String(data: value!, encoding: .utf8)!
+            let vss = String(bytes: value!, encoding: .utf8)
+            let vs = String(data: value!, encoding: .ascii)
+            let nlvs = String(data: value!, encoding: .nonLossyASCII)
+            //let cString = String(cString: Array(value!))
+            //else {
+                print("oof")
+                print(value)
+                print(vss)
+                print(vs)
+                print(nlvs)
+                print(valueString)
+                continue
+            //}
+            print("valueString is: \(valueString)")
             peripheral.respond(to: request, withResult: .success)
         }
         writeCallback!(valueString, requests[0].central)
@@ -116,4 +146,5 @@ class BLETwoWayPeripheral: NSObject, CBPeripheralManagerDelegate {
         let updateData = update.data(using: .utf8)!
         manager.updateValue(updateData, for: self.characteristics[2] as! CBMutableCharacteristic, onSubscribedCentrals: [central])
     }
+
 }

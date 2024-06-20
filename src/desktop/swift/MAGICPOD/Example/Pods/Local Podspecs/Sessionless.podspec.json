@@ -18,7 +18,7 @@
   "platforms": {
     "ios": "16.0",
     "tvos": "16.0",
-    "osx": "10.12"
+    "osx": "13.1"
   },
   "source_files": "Sessionless/Classes/**/*",
   "resource_bundles": {
