@@ -14,5 +14,10 @@
     "mocha": "^10.4.0",
     "sessionless-node": "^0.10.1",
     "superagent": "^9.0.2"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "fount-js": "^0.0.3",
+    "magic-gateway-js": "../../src/server/javascript/magic-adapter"
   }
 }

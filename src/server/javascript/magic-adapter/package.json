@@ -1,0 +1,15 @@
+{
+  "name": "magic-gateway-js",
+  "version": "0.0.1",
+  "description": "A javascript gateway adapter for the MAGIC protocol",
+  "main": "gateway.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [
+    "magic"
+  ],
+  "author": "planetnineisaspaceship",
+  "license": "MIT"
+}
