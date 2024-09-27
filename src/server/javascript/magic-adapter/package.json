@@ -1,6 +1,6 @@
 {
   "name": "magic-gateway-js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A javascript gateway adapter for the MAGIC protocol",
   "main": "gateway.js",
   "scripts": {
@@ -8,7 +8,9 @@
   },
   "type": "module",
   "keywords": [
-    "magic"
+    "magic",
+    "sessionless",
+    "allyabase"
   ],
   "author": "planetnineisaspaceship",
   "license": "MIT"

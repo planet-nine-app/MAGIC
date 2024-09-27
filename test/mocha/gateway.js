@@ -38,7 +38,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const onSuccess = (res, result) => {
+const onSuccess = (req, res, result) => {
 console.log('onSuccess', result);
   res.send(result);
 };

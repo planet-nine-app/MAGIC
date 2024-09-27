@@ -13,7 +13,7 @@ export default (app, fountUser, spellbook, stopName, signer, extra, onSuccess) =
       
       const spellResponse = await MAGIC(spell);
       const spellResponseBody = await spellResponse.json();
-      return onSuccess(res, spellResponseBody);
+      return onSuccess(req, res, spellResponseBody);
     } catch(err) {
       res.status(404);
       res.send({error: 'not found'});
