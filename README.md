@@ -18,7 +18,7 @@ It's not uncommon for the server to receive a request, and hand off some or all 
 MAGIC uses [Sessionless][sessionless] to enable trust in the third party from the _client_ instead of the server.
 
 Wihtout needing the client to establish a connection with the server to use the third party, the server can actually skip authenticating the client, and simply passthrough requests to the third party.
-As stated above, this is how payment processing at store with a POS works. 
+As stated above, this is how payment processing at stores with a POS works. 
 The buyer presents a request via their credit card, the POS machine, which knows nothing of the buyer, forwards that request to a trusted third party, the credit card company, who in turn notifies the banks, and if everything is good, the transaction settles, the POS machine receives a successful response, and the shopowner completes the transaction.
 
 Here's a picture of that process:
@@ -32,7 +32,7 @@ sequenceDiagram
     AcquiringBank->>+POS: POS receives success/failure message
 ```
 
-So in this transaction the humans do something, the POS reads a card and gets a token, that token is sent to a bank, and decoded then sent to another bank, which approves the transaction. 
+So in this transaction the humans do something, the POS reads a card and gets a token, that token is sent to a bank, and decoded, then sent to another bank, which approves the transaction. 
 The approval then gets sent back the other way, and all the pieces agree on whether it succeeded or failed. 
 The card networks (Visa, MasterCard, Discover, Amex) provide the routing between banks. 
 Merchants get charged a flat percentage or fee on the transaction, something like 2.5-3.5%, and the card networks and banks all take a slice and everyone is happy.
@@ -104,36 +104,22 @@ Just like payments have always done, just with the ability to add actors without
 ## What about non-payments?
 
 When I first thought of MAGIC (you can read the [original patent here][magic-patent]). 
-I was actually more excited about its potential as a solution to a problem that had plagued me for years.
-Namely as a way to facilitate micro-transactions.
+We were struggling to find a solution to the micropayments used in the mobility space (if a bus ticket is $2.50, and your payment processor takes $0.30 + 3%, you're losing 15% off your transaction).
+I was charged with building a stored value system to make it so we'd only have to pay the transaction fee on larger amounts, since the "top-offs" were typically larger than $2.50.  
 
-I wrote a whole blog post about it that no one read, and a few people on Reddit made fun of me for before my post got deleted.
-If you want you can check it out here: [micro-transaction blog post][blog]. 
-What I didn't realize at the time was that I was too high up in the stack, and hadn't explained the three layers underneath.
-That sent me back to the drawing board, and onto this current effort to get this stack out into the world. 
+The problem with stored value systems, is that, as anyone who has cleaned out their wallet only to find the expired gift card they got three years ago knows, they're only valuable so long as you keep using whatever it is that the stored value is linked to.
+That's a pretty decent system for something like transit where people tend to use it consistently, but does it work for point-to-point rental cars (car2go was still around back then)?
+Does it work for scooters?
 
-So forget about the micro-transaction part right now, let's just talk about what a non-payment MAGIC pipeline means, and what it can do.
+So I started thinking about how could a stored value system work for multiple verticals so that you could make something like a mobility card that worked across different companies.
+That thinking is what led me to think about digital identity, and write this paper: [Digital Identity for Smart Cities][smart-cities].
+And that in turn started me down the path to what eveentually would be called [Sessionless][sessionless].
 
-I wanted it to feel magical, and at the same time needed a way to prevent spamming requests since any kind of "free" reward on the internet is just begging to be hit by bots.
-This was easy enough, let's introduce a globally available resource called Power (now I think we should just drop the pretense and call it MP), that recharges over time, and caps just like MP does in a game like Skyrim.
-This provides a cost for magical transactions, and fits the lore quite nicely. 
+When I combined the digital identity piece with the stored value piece in a development environment that didn't use real money, I realized I had built something familiar--it was basically just how my magic system worked in [The Epic of Roderick][teor], a game I tried to develop many years ago.
+Except instead of hurling fireballs at monsters, this magic system could do, well, anything computers can do.
 
-It also has some interesting properties.
-MP is non-transferrable, so when you spend it it just goes away only to recharge over time.
-That means people can't buy or trade MP.
-It also means, unlike money, there's an opportunity cost to not spending MP since if it maxes out, you stop accruing it.
+And that is interesting.
 
-This opportunity cost is really interesting from an economic standpoint since it's the _opposite_ of what is happening in the world of crypto.
-Since Bitcoin et al's value tends to go up faster than inflation, the lowest value it has is when you acquire it, and so there's no incentive to spend it.
-This makes it great as a store of value, but lousy as a medium of exchange. 
-Could MP provide the counterpoint to crypto, and be that medium of exchange?
-
-[I said I wasn't going to go there, but here's the link to that blog post again.][blog].
-
-Put the money aspect aside again for a moment.
-Since MP doesn't transfer, something of some sort of value needs to be transacted. 
-So I made up a token I call Nineum, and made up some rules for its distribution. 
-[Nineum is non-fungible tokens done right, and in such a way to (eventually) enrich their owners.][nineum]
 
 ## So what is MAGIC again?
 
@@ -154,4 +140,5 @@ Below are links to the developer and UX READMEs for MAGIC:
 [README-DEV]: ./README-DEV.md
 [README-UX]: ./README-UX.md
 [Here is a simple video of what MAGIC can do.]: https://www.planetnineapp.com/magic-demo-1
-
+[smart-cities]: https://static1.squarespace.com/static/5bede41d365f02ab5120b40f/t/65d305f9682e3158ed9386cf/1708328441775/ACM+Identity+Paper.pdf
+[teor]: https://github.com/zach-planet-nine/Epic-of-Roderick?tab=readme-ov-file#the-epic-of-roderick
