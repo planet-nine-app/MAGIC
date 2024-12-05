@@ -17,7 +17,8 @@ const fountUser = await fount.createUser(saveKeys, getKeys); // again, Fount isn
                                                              // registered with a MAGIC resolver
 await sessionless.generateKeys(() => {}, getKeys); // you have to prime sessionless with how to getKeys.
 
-const spellbook = getSpellbook(); // spellbooks are part of the MAGIC protocol, and you'll need one for your gateway
+const spellbook = getSpellbook(); // spellbooks are part of the MAGIC protocol, and you'll need one for your gateway.
+                                  // the bdo-js package provides a method for this if you want to use BDO
 const myStopName = 'cool-server'; // this string needs to map to a stopName in a spell in the spellbook for 
                                   // you to get a spell cast your way.
 
