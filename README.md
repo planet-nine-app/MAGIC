@@ -8,7 +8,7 @@ It is, in essence, a generalization of the process by which bank settlement happ
 Though purchasing is one of its use cases, MAGIC can allow for a whole host of interesting interactions between devices that have never interacted before, and need not interact again.
 It is always a little contrived to call technology magic, but as David Copperfield said at a show of his I went to as a kid, "we all know that magic isn't real, but if it was, here's what it might look like."
 
-[Here is a simple video of what MAGIC can do.]
+[Here is a simple video of what MAGIC can do.][video]
 
 ## Overview
 
@@ -142,3 +142,4 @@ Below are links to the developer and UX READMEs for MAGIC:
 [Here is a simple video of what MAGIC can do.]: https://www.planetnineapp.com/magic-demo-1
 [smart-cities]: https://static1.squarespace.com/static/5bede41d365f02ab5120b40f/t/65d305f9682e3158ed9386cf/1708328441775/ACM+Identity+Paper.pdf
 [teor]: https://github.com/zach-planet-nine/Epic-of-Roderick?tab=readme-ov-file#the-epic-of-roderick
+[video]: https://vimeo.com/1037625246?share=copy#t=0
