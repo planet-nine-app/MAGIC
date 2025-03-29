@@ -1,0 +1,31 @@
+{
+  "name": "wiki-plugin-ftt",
+  "version": "0.0.1",
+  "description": "Forward Transfer Token plugin for the federated wiki",
+  "keywords": [
+    "wiki",
+    "federated",
+    "sessionless",
+    "planet-nine"
+  ],
+  "homepage": "https://github.com/planet-nine-app/wiki-plugin-ftt#readme",
+  "bugs": {
+    "url": "https://github.com/planet-nine-app/wiki-plugin-ftt/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/planet-nine-app/wiki-plugin-ftt.git"
+  },
+  "license": "MIT",
+  "author": "planetnineisaspaceship",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bdo-js": "^0.0.6",
+    "fount-js": "0.0.6",
+    "sessionless-node": "^0.11.0"
+  }
+}

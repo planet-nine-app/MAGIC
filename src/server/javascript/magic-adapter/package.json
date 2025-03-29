@@ -1,10 +1,11 @@
 {
   "name": "magic-gateway-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A javascript gateway adapter for the MAGIC protocol",
   "main": "gateway.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "rollup": "npx rollup --format=cjs --file=gateway.cjs -- gateway.js "
   },
   "type": "module",
   "keywords": [
@@ -13,5 +14,8 @@
     "allyabase"
   ],
   "author": "planetnineisaspaceship",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^4.37.0"
+  }
 }
