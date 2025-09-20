@@ -26,6 +26,7 @@
   "dependencies": {
     "bdo-js": "^0.0.6",
     "fount-js": "0.0.6",
+    "magic-gateway-js": "^0.0.3",
     "sessionless-node": "^0.11.0"
   }
 }

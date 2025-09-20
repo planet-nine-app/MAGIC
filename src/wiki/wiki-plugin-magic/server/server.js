@@ -1,10 +1,11 @@
 (function() {
-var gateway = require('magic-gateway-js');
+var _gateway = require('magic-gateway-js');
 var _fount = require('fount-js');
 var _bdo = require('bdo-js');
 var sessionless = require('sessionless-node');
 var fs = require('fs');
 
+const gateway = _gateway.default; 
 const fount = _fount.default;
 const bdo = _bdo.default;
 
@@ -22,8 +23,8 @@ async function startServer(params) {
   let allyabaseUser = {};
   
   const allyabaseKeys = {
-    privateKey: argv.private_key,
-    pubKey: argv.pub_key
+    privateKey: argv.contract_private_key,
+    pubKey: argv.contract_pub_key
   };
 
   const saveKeys = () => {};
@@ -34,7 +35,7 @@ async function startServer(params) {
 
   await sessionless.generateKeys(saveKeys, getKeys);
 
-  app.get('/plugin/MAGIC/user', async function(req, res) {
+//  app.get('/plugin/MAGIC/user', async function(req, res) {
 console.log('getting called here');
     let fountUser;
     let bdoUUID;
@@ -57,8 +58,8 @@ console.log('fount looks like', fount);
     allyabaseUser.nineum = await fount.getNineum(allyabaseUser.fountUser.uuid);
 console.log('allyabaseUser is: ', allyabaseUser);
 
-    res.send(allyabaseUser);
-  });
+//    res.send(allyabaseUser);
+//  });
 
   app.post('/plugin/MAGIC/resolve', async function(req, res) {
     const payload = req.body;
@@ -100,10 +101,10 @@ console.log('getting the user on the server, it looks like: ', fountUser);
 
   const spellbook = {
     spellbookName: 'ReaLocalize', 
-    sodoto: {
+    contract: {
       cost: 1,
       destinations: [
-        {stopName: 'contract-wiki', stopURL: 'http://127.0.0.1:4444/plugin/magic/spell'},
+        {stopName: 'contract-wiki', stopURL: 'http://127.0.0.1:4444/plugin/magic/spell/'},
         {stopName: 'fount', stopURL: 'http://127.0.0.1:3006/resolve/'}
       ]
     }
@@ -112,17 +113,35 @@ console.log('getting the user on the server, it looks like: ', fountUser);
   const myStopName = 'contract-wiki';
 
   const extraForGateway = (spellName) => {
-    
+    if(spellName === 'contract') {
+      return 'contractUUID';
+    }    
   };
 
   const onSuccess = (req, res, result) => {
-    // do something cool here. req and res are the standard request and response objects in the framework you're using
-    result.myStopName = {};
-    result.myStopName.says = 'yo'; // you can add to the result object you send back
+    result.whatToDo = 'Transfer some nineum and stuff';    
+    const spell = req.body;
+    const casterUUID = spell.casterUUID;
+    const targetUUID = spell.gateways[0].uuid;
+
+    fetch('http://127.0.0.1:4444/plugin/ftt/grant-nineum', {
+      method: 'post',
+      body: JSON.stringify({toUUID: casterUUID, flavor: 'c1c1c1c1c1c1'}),
+      headers: {'Content-Type': 'application/json'}
+    });
+
+    fetch('http://127.0.0.1:4444/plugin/ftt/grant-nineum', {
+      method: 'post',
+      body: JSON.stringify({toUUID: targetUUID, flavor: 'ea10c411133c'}),
+      headers: {'Content-Type': 'application/json'}
+    });
+
     res.send(result); // the result needs to make it back to the caster for the spell to complete
   };
 
-  gateway.expressApp(app, fountUser, spellbook, myStopName, sessionless, extraForGateway, onSuccess);
+console.log('gateway looks like', gateway);
+
+  gateway.expressApp(app, allyabaseUser.fountUser, spellbook, myStopName, sessionless, extraForGateway, onSuccess);
 }
 
 module.exports = {startServer};

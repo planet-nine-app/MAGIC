@@ -7,6 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "rollup": "npx rollup --format=cjs --file=gateway.cjs -- gateway.js "
   },
+  "export": {
+    "import": "./gateway.js",
+    "require": "./gateway.cjs"
+  },
   "type": "module",
   "keywords": [
     "magic",

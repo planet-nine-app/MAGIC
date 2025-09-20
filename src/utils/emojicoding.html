@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Base-128 Hex Encoder</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4299e1;
+        }
+        
+        .stat-label {
+            color: #718096;
+            margin-top: 5px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .emoji-output {
+            font-size: 1.5em;
+            line-height: 1.8;
+            word-break: break-all;
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            min-height: 60px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+        
+        .emoji-set {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            line-height: 1.6;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .emoji-set h4 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .warning {
+            background: #fef5e7;
+            border: 1px solid #f6ad55;
+            color: #c05621;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔠➡️😊</h1>
+        <div class="subtitle">Emoji Base-128 Hex Encoder/Decoder</div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">50%</div>
+                <div class="stat-label">Compression vs Hex</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">64</div>
+                <div class="stat-label">Base-64 Emoji</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Bits per Character</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>✨ Magic Delimiters</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                <button class="btn-secondary" onclick="setMagic('none')" id="magicNone">No Magic</button>
+                <button class="btn-primary" onclick="setMagic('sparkles')" id="magicSparkles">✨ Sparkles ✨</button>
+                <button class="btn-secondary" onclick="setMagic('crystal')" id="magicCrystal">🔮 Crystal Ball 🔮</button>
+                <button class="btn-secondary" onclick="setMagic('stars')" id="magicStars">⭐ Stars ⭐</button>
+                <button class="btn-secondary" onclick="setMagic('lightning')" id="magicLightning">⚡ Lightning ⚡</button>
+                <button class="btn-secondary" onclick="setMagic('triple')" id="magicTriple">✨✨✨ Triple ✨✨✨</button>
+            </div>
+            <div style="font-size: 0.9em; color: #718096;">
+                Magic delimiters help identify encoded strings and make them more visually distinctive. Triple sparkles provide the most robust detection.
+            </div>
+        </div>
+            <div class="section">
+            <h3>⚙️ Encoding Options</h3>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <button class="btn-primary" onclick="setBase(64)" id="base64btn">Base-64 (Ultra Reliable)</button>
+                <button class="btn-secondary" onclick="setBase(128)" id="base128btn">Base-128 (More Compact)</button>
+            </div>
+            <div style="font-size: 0.9em; color: #718096;">
+                <strong>Base-64:</strong> Uses only the most universally supported emoji for maximum compatibility.<br>
+                <strong>Base-128:</strong> Better compression but some emoji may render differently across platforms.
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>✨ Magic Delimiters</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                <button class="btn-secondary" onclick="setMagic('none')" id="magicNone">No Magic</button>
+                <button class="btn-primary" onclick="setMagic('sparkles')" id="magicSparkles">✨ Sparkles ✨</button>
+                <button class="btn-secondary" onclick="setMagic('crystal')" id="magicCrystal">🔮 Crystal Ball 🔮</button>
+                <button class="btn-secondary" onclick="setMagic('stars')" id="magicStars">⭐ Stars ⭐</button>
+                <button class="btn-secondary" onclick="setMagic('lightning')" id="magicLightning">⚡ Lightning ⚡</button>
+                <button class="btn-secondary" onclick="setMagic('triple')" id="magicTriple">✨✨✨ Triple ✨✨✨</button>
+            </div>
+            <div style="font-size: 0.9em; color: #718096;">
+                Magic delimiters help identify encoded strings and make them more visually distinctive. Triple sparkles provide the most robust detection.
+            </div>
+        </div>
+        
+        <div class="success">
+            <strong>✨ Magic Feature:</strong> Delimiters automatically identify encoded strings and prevent accidental decoding of regular emoji text. The decoder automatically strips any detected magic markers!
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ Platform Note:</strong> Base-64 mode uses ultra-reliable emoji from Unicode 6.0-7.0. Base-128 mode includes newer emoji that may render differently on some platforms, especially Windows (monochrome) - but they'll still encode/decode correctly!
+        </div>
+        
+        <div class="section">
+            <h3>🔢 Hex to Emoji Encoder</h3>
+            <div class="input-group">
+                <label for="hexInput">Hex String (without 0x prefix):</label>
+                <input type="text" id="hexInput" placeholder="1a2b3c4d5e6f" oninput="encodeHex()">
+            </div>
+            <div class="input-group">
+                <label>Emoji Output:</label>
+                <div class="emoji-output" id="emojiOutput">Enter hex above...</div>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="copyEmoji()">📋 Copy Emoji</button>
+                <button class="btn-secondary" onclick="generateRandom()">🎲 Random Hex</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>😊 Emoji to Hex Decoder</h3>
+            <div class="input-group">
+                <label for="emojiInput">Emoji String:</label>
+                <textarea id="emojiInput" placeholder="Paste emoji here..." oninput="decodeEmoji()"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Hex Output:</label>
+                <textarea id="hexOutput" readonly placeholder="Decoded hex will appear here..." style="min-height: 60px;"></textarea>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="copyHex()">📋 Copy Hex</button>
+            </div>
+        </div>
+        
+        <div class="emoji-set">
+            <h4 id="emojiSetTitle">🎨 Universal Emoji Set (64 characters)</h4>
+            <div id="emojiSetDisplay">Loading emoji set...</div>
+        </div>
+    </div>
+
+    <script>
+        // Ultra-reliable base-64 emoji set - maximum cross-platform compatibility
+        // Using only the most universally supported emoji from Unicode 6.0-7.0
+        const EMOJI_SET_64 = [
+            // Core smileys (16) - universally supported
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '😊', '😉', '😍', '😘', '😋', '😎', '😐', '😑', '😔',
+            
+            // Hearts & love (8) - extremely reliable  
+            '❤️', '💛', '💚', '💙', '💜', '💔', '💕', '💖',
+            
+            // Basic hands (8) - well supported
+            '👍', '👎', '👌', '✌️', '👈', '👉', '👆', '👇',
+            
+            // Nature & weather (8) - stable Unicode 6.0
+            '☀️', '🌙', '⭐', '⚡', '☁️', '❄️', '🔥', '💧',
+            
+            // Animals (8) - highly compatible
+            '🐶', '🐱', '🐭', '🐰', '🐻', '🐯', '🐸', '🐧',
+            
+            // Objects & symbols (8) - basic Unicode
+            '💎', '🔑', '🎁', '🎉', '🏠', '🚗', '📱', '⚽',
+            
+            // Food (8) - reliable classics
+            '🍎', '🍊', '🍌', '🍕', '🍔', '🍰', '☕', '🍺'
+        ];
+
+        const EMOJI_SET_128 = [
+            // All of base-64 set
+            ...EMOJI_SET_64,
+            
+            // Extended smileys (16)
+            '😇', '🙂', '🙃', '😌', '😏', '😒', '😞', '😟', '😤', '😢', '😭', '😱', '😨', '😰', '😡', '🤔',
+            
+            // More hearts & symbols (16)  
+            '💗', '💘', '💝', '💞', '💟', '❣️', '💌', '💐', '🌹', '🌺', '🌻', '🌷', '🌸', '💮', '🏵️', '🌼',
+            
+            // Extended hands & gestures (16)
+            '☝️', '✋', '🤚', '🖐️', '🖖', '👏', '🙌', '👐', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '👂', '👃',
+            
+            // More nature (16)
+            '🌈', '🌍', '🌎', '🌏', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '⛄', '🌟', '💫', '✨'
+        ];
+
+        // Current encoding selection
+        let EMOJI_SET = EMOJI_SET_64;
+        let CURRENT_BASE = 64;
+        let BITS_PER_CHAR = 6;
+        let MAGIC_MODE = 'sparkles';
+
+        // Magic delimiter options
+        const MAGIC_DELIMITERS = {
+            'none': { start: '', end: '' },
+            'sparkles': { start: '✨', end: '✨' },
+            'crystal': { start: '🔮', end: '🔮' },
+            'stars': { start: '⭐', end: '⭐' },
+            'lightning': { start: '⚡', end: '⚡' },
+            'triple': { start: '✨✨✨', end: '✨✨✨' }
+        };
+
+        function setMagic(mode) {
+            MAGIC_MODE = mode;
+            
+            // Update button styles
+            Object.keys(MAGIC_DELIMITERS).forEach(key => {
+                const btn = document.getElementById('magic' + key.charAt(0).toUpperCase() + key.slice(1));
+                if (btn) {
+                    btn.className = key === mode ? 'btn-primary' : 'btn-secondary';
+                }
+            });
+            
+            // Re-encode current input to show with new delimiters
+            const hexInput = document.getElementById('hexInput').value;
+            if (hexInput) encodeHex();
+        }
+
+        function setBase(base) {
+            if (base === 64) {
+                EMOJI_SET = EMOJI_SET_64;
+                CURRENT_BASE = 64;
+                BITS_PER_CHAR = 6;
+                
+                // Update button styles
+                document.getElementById('base64btn').className = 'btn-primary';
+                document.getElementById('base128btn').className = 'btn-secondary';
+            } else if (base === 128) {
+                EMOJI_SET = EMOJI_SET_128;
+                CURRENT_BASE = 128;
+                BITS_PER_CHAR = 7;
+                
+                // Update button styles
+                document.getElementById('base64btn').className = 'btn-secondary';
+                document.getElementById('base128btn').className = 'btn-primary';
+            }
+            
+            // Update UI stats
+            document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = CURRENT_BASE;
+            document.querySelector('.stat-card:nth-child(2) .stat-label').textContent = `Base-${CURRENT_BASE} Emoji`;
+            document.querySelector('.stat-card:nth-child(3) .stat-number').textContent = BITS_PER_CHAR;
+            
+            // Update compression percentage
+            const expectedCompression = ((4 - BITS_PER_CHAR) / 4 * 100).toFixed(0);
+            document.querySelector('.stat-card:nth-child(1) .stat-number').textContent = expectedCompression + '%';
+            
+            displayEmojiSet();
+            
+            // Re-encode current input
+            const hexInput = document.getElementById('hexInput').value;
+            if (hexInput) encodeHex();
+            
+            const emojiInput = document.getElementById('emojiInput').value;
+            if (emojiInput) decodeEmoji();
+        }
+
+        // Verify sets are correct size
+        console.log(`Base-64 set: ${EMOJI_SET_64.length} emoji`);
+        console.log(`Base-128 set: ${EMOJI_SET_128.length} emoji`);
+        
+        if (EMOJI_SET_64.length !== 64) {
+            console.error(`Base-64 set has ${EMOJI_SET_64.length} characters, need exactly 64`);
+        }
+        if (EMOJI_SET_128.length !== 128) {
+            console.error(`Base-128 set has ${EMOJI_SET_128.length} characters, need exactly 128`);
+        }
+
+        function displayEmojiSet() {
+            const display = document.getElementById('emojiSetDisplay');
+            const title = document.getElementById('emojiSetTitle');
+            
+            // Update title
+            title.textContent = `🎨 Universal Emoji Set (${EMOJI_SET.length} characters)`;
+            
+            // Display emoji in rows
+            let html = '';
+            const itemsPerRow = CURRENT_BASE === 64 ? 8 : 16;
+            for (let i = 0; i < EMOJI_SET.length; i += itemsPerRow) {
+                html += EMOJI_SET.slice(i, i + itemsPerRow).join(' ') + '<br>';
+            }
+            display.innerHTML = html;
+        }
+
+        function hexToBinary(hex) {
+            return hex.split('').map(h => 
+                parseInt(h, 16).toString(2).padStart(4, '0')
+            ).join('');
+        }
+
+        function binaryToHex(binary) {
+            // Pad to multiple of 4 bits
+            while (binary.length % 4 !== 0) {
+                binary = '0' + binary;
+            }
+            
+            let hex = '';
+            for (let i = 0; i < binary.length; i += 4) {
+                hex += parseInt(binary.substr(i, 4), 2).toString(16);
+            }
+            return hex;
+        }
+
+        function encodeHex() {
+            const hexInput = document.getElementById('hexInput').value.replace(/[^0-9a-fA-F]/g, '');
+            
+            if (!hexInput) {
+                document.getElementById('emojiOutput').textContent = 'Enter hex above...';
+                return;
+            }
+
+            try {
+                // Convert hex to binary
+                const binary = hexToBinary(hexInput.toLowerCase());
+                
+                // Pad to multiple of BITS_PER_CHAR
+                let paddedBinary = binary;
+                while (paddedBinary.length % BITS_PER_CHAR !== 0) {
+                    paddedBinary = '0' + paddedBinary;
+                }
+                
+                // Convert to emoji
+                let emoji = '';
+                for (let i = 0; i < paddedBinary.length; i += BITS_PER_CHAR) {
+                    const bits = paddedBinary.substr(i, BITS_PER_CHAR);
+                    const index = parseInt(bits, 2);
+                    emoji += EMOJI_SET[index];
+                }
+                
+                // Add magic delimiters
+                const delimiters = MAGIC_DELIMITERS[MAGIC_MODE];
+                const finalEmoji = delimiters.start + emoji + delimiters.end;
+                
+                document.getElementById('emojiOutput').textContent = finalEmoji;
+                
+                // Show compression stats (comparing to original hex length)
+                const totalLength = finalEmoji.length;
+                const compressionRatio = ((hexInput.length - totalLength) / hexInput.length * 100).toFixed(1);
+                document.querySelector('.stat-card:nth-child(1) .stat-number').textContent = compressionRatio + '%';
+                
+            } catch (error) {
+                document.getElementById('emojiOutput').textContent = 'Error: Invalid hex input';
+            }
+        }
+
+        function decodeEmoji() {
+            let emojiInput = document.getElementById('emojiInput').value;
+            
+            if (!emojiInput) {
+                document.getElementById('hexOutput').value = '';
+                return;
+            }
+
+            try {
+                // Strip magic delimiters if present and detect which ones
+                let strippedInput = emojiInput;
+                let detectedMagic = null;
+                
+                for (const [mode, delimiters] of Object.entries(MAGIC_DELIMITERS)) {
+                    if (delimiters.start && delimiters.end) {
+                        if (emojiInput.startsWith(delimiters.start) && emojiInput.endsWith(delimiters.end)) {
+                            strippedInput = emojiInput.slice(delimiters.start.length, -delimiters.end.length);
+                            detectedMagic = mode;
+                            break;
+                        }
+                    }
+                }
+                
+                let binary = '';
+                
+                // Convert each emoji character to binary
+                for (const char of strippedInput) {
+                    const index = EMOJI_SET.indexOf(char);
+                    if (index === -1) {
+                        // Skip unknown characters (like variation selectors)
+                        continue;
+                    }
+                    binary += index.toString(2).padStart(BITS_PER_CHAR, '0');
+                }
+                
+                if (binary === '') {
+                    document.getElementById('hexOutput').value = 'No valid emoji found';
+                    return;
+                }
+                
+                // Convert binary to hex
+                const hex = binaryToHex(binary);
+                let output = hex.toUpperCase();
+                
+                // Add magic detection message
+                if (detectedMagic) {
+                    const magicName = detectedMagic.charAt(0).toUpperCase() + detectedMagic.slice(1);
+                    output = `✨ Detected ${magicName} Magic! ✨\n${output}`;
+                }
+                
+                document.getElementById('hexOutput').value = output;
+                
+            } catch (error) {
+                document.getElementById('hexOutput').value = 'Error: Invalid emoji input';
+            }
+        }
+
+        function copyEmoji() {
+            const emojiText = document.getElementById('emojiOutput').textContent;
+            if (emojiText && emojiText !== 'Enter hex above...' && emojiText !== 'Error: Invalid hex input') {
+                navigator.clipboard.writeText(emojiText).then(() => {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ Copied!';
+                    setTimeout(() => btn.textContent = originalText, 2000);
+                });
+            }
+        }
+
+        function copyHex() {
+            const hexText = document.getElementById('hexOutput').value;
+            if (hexText && !hexText.includes('Error')) {
+                // Extract just the hex part if there's a magic detection message
+                const hexOnly = hexText.includes('✨') ? hexText.split('\n').slice(-1)[0] : hexText;
+                navigator.clipboard.writeText(hexOnly).then(() => {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ Copied!';
+                    setTimeout(() => btn.textContent = originalText, 2000);
+                });
+            }
+        }
+
+        function generateRandom() {
+            const randomHex = Array.from({length: 16}, () => 
+                Math.floor(Math.random() * 16).toString(16)
+            ).join('');
+            
+            document.getElementById('hexInput').value = randomHex;
+            encodeHex();
+        }
+
+        // Initialize the page
+        displayEmojiSet();
+        setMagic('sparkles'); // Set default magic mode
+        
+        // Update input events to be more responsive
+        document.getElementById('hexInput').addEventListener('input', encodeHex);
+        document.getElementById('emojiInput').addEventListener('input', decodeEmoji);
+    </script>
+</body>
+</html>
