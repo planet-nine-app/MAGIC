@@ -1,0 +1,20 @@
+{
+  "name": "lora-server",
+  "version": "1.0.0",
+  "description": "Magical LoRa message dashboard with real-time WebSocket visualization",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["lora", "websocket", "dashboard", "magic"],
+  "author": "Planet Nine",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Magical LoRa Dashboard ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e4e4e4;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sparkle particles */
+        #sparkles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle-float 3s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes sparkle-float {
+            0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-50px) scale(1.5); }
+        }
+
+        /* Header */
+        header {
+            background: rgba(30, 30, 60, 0.9);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 3px solid #53a8b6;
+            box-shadow: 0 4px 20px rgba(83, 168, 182, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(83, 168, 182, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(83, 168, 182, 0.8); }
+            to { text-shadow: 0 0 40px rgba(83, 168, 182, 1), 0 0 60px rgba(83, 168, 182, 0.6); }
+        }
+
+        .subtitle {
+            color: #53a8b6;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(30, 30, 60, 0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid #53a8b6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(83, 168, 182, 0.4);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #53a8b6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b4b4b4;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-online { background: #2ecc71; }
+        .status-offline { background: #e74c3c; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Messages Container */
+        .messages-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .messages-header {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #53a8b6;
+            border-bottom: 2px solid #53a8b6;
+            padding-bottom: 0.5rem;
+        }
+
+        .message-card {
+            background: rgba(30, 30, 60, 0.9);
+            border: 2px solid #53a8b6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            animation: slide-in 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .message-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 40px rgba(83, 168, 182, 0.5);
+        }
+
+        @keyframes slide-in {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message-card.new-message {
+            animation: magic-appear 1s ease-out;
+        }
+
+        @keyframes magic-appear {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotate(-5deg);
+                filter: blur(10px);
+            }
+            50% {
+                transform: scale(1.05) rotate(2deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0);
+                filter: blur(0);
+            }
+        }
+
+        .message-content {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .message-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #b4b4b4;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-label {
+            color: #53a8b6;
+            font-weight: bold;
+        }
+
+        .signature-valid {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .signature-invalid {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Signal Quality Bar */
+        .signal-bar {
+            margin-top: 1rem;
+        }
+
+        .signal-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .signal-progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .signal-fill {
+            height: 100%;
+            transition: width 0.5s ease, background 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .signal-excellent { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+        .signal-good { background: linear-gradient(90deg, #3498db, #2980b9); }
+        .signal-fair { background: linear-gradient(90deg, #f39c12, #e67e22); }
+        .signal-poor { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #7f8c8d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(83, 168, 182, 0.3);
+            margin-top: 3rem;
+        }
+
+        /* Magic burst effect */
+        .magic-burst {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .burst-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #53a8b6, transparent);
+            animation: burst 1s ease-out forwards;
+        }
+
+        @keyframes burst {
+            to {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="sparkles"></div>
+
+    <header>
+        <h1>✨ Magical LoRa Dashboard ✨</h1>
+        <p class="subtitle">Real-time cryptographically signed radio messages</p>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-value" id="total-messages">0</div>
+            <div class="stat-label">Total Messages</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="valid-sigs">0</div>
+            <div class="stat-label">✓ Valid Signatures</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="invalid-sigs">0</div>
+            <div class="stat-label">✗ Invalid Signatures</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">
+                <span class="status-indicator" id="gateway-status"></span>
+                Gateway Status
+            </div>
+            <div class="stat-value" id="gateway-count" style="font-size: 1.5rem;">Offline</div>
+        </div>
+    </div>
+
+    <div class="messages-container">
+        <div class="messages-header">📡 Received Messages</div>
+        <div id="messages-list">
+            <div class="empty-state">
+                <div class="empty-state-icon">🔮</div>
+                <div>Waiting for magical LoRa messages...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Planet Nine MAGIC Protocol • LoRa Gateway Dashboard</p>
+        <p>Powered by Sessionless Cryptography & WebSockets</p>
+    </footer>
+
+    <script>
+        // WebSocket connection
+        const ws = new WebSocket(`ws://${window.location.host}/dashboard`);
+        const messagesList = document.getElementById('messages-list');
+        let messageCount = 0;
+
+        // Create sparkles
+        function createSparkles() {
+            const container = document.getElementById('sparkles');
+            for (let i = 0; i < 20; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 3 + 's';
+                sparkle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                container.appendChild(sparkle);
+            }
+        }
+
+        // Create magic burst effect
+        function createMagicBurst(x, y) {
+            const burst = document.createElement('div');
+            burst.className = 'magic-burst';
+            burst.style.left = x + 'px';
+            burst.style.top = y + 'px';
+            document.body.appendChild(burst);
+
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'burst-particle';
+                const angle = (i / 12) * Math.PI * 2;
+                const distance = 100;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                burst.appendChild(particle);
+            }
+
+            setTimeout(() => burst.remove(), 1000);
+        }
+
+        // Update stats
+        function updateStats(stats) {
+            document.getElementById('total-messages').textContent = stats.totalMessages;
+            document.getElementById('valid-sigs').textContent = stats.validSignatures;
+            document.getElementById('invalid-sigs').textContent = stats.invalidSignatures;
+        }
+
+        // Update gateway status
+        function updateGatewayStatus(connected, count) {
+            const statusIndicator = document.getElementById('gateway-status');
+            const gatewayCount = document.getElementById('gateway-count');
+
+            if (connected) {
+                statusIndicator.className = 'status-indicator status-online';
+                gatewayCount.textContent = `${count} Connected`;
+            } else {
+                statusIndicator.className = 'status-indicator status-offline';
+                gatewayCount.textContent = 'Offline';
+            }
+        }
+
+        // Get signal quality class
+        function getSignalClass(rssi) {
+            if (rssi >= -60) return 'signal-excellent';
+            if (rssi >= -75) return 'signal-good';
+            if (rssi >= -90) return 'signal-fair';
+            return 'signal-poor';
+        }
+
+        // Get signal quality label
+        function getSignalLabel(rssi) {
+            if (rssi >= -60) return 'Excellent';
+            if (rssi >= -75) return 'Good';
+            if (rssi >= -90) return 'Fair';
+            return 'Poor';
+        }
+
+        // Calculate signal percentage (from -120 to -30 dBm)
+        function getSignalPercentage(rssi) {
+            const min = -120;
+            const max = -30;
+            return Math.max(0, Math.min(100, ((rssi - min) / (max - min)) * 100));
+        }
+
+        // Add message to display
+        function addMessage(msg) {
+            // Remove empty state
+            const emptyState = messagesList.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            // Create message card
+            const card = document.createElement('div');
+            card.className = 'message-card new-message';
+
+            const signatureClass = msg.signatureValid ? 'signature-valid' : 'signature-invalid';
+            const signatureText = msg.signatureValid ? '✓ VALID' : '✗ INVALID';
+            const signalClass = getSignalClass(msg.rssi);
+            const signalLabel = getSignalLabel(msg.rssi);
+            const signalPercent = getSignalPercentage(msg.rssi);
+
+            const timestamp = new Date(msg.receivedAt).toLocaleString();
+            const shortPubKey = msg.senderPubKey.substring(0, 16) + '...';
+
+            card.innerHTML = `
+                <div class="message-content">"${msg.message}"</div>
+                <div class="message-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">From:</span>
+                        <span>${shortPubKey}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Signature:</span>
+                        <span class="${signatureClass}">${signatureText}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">RSSI:</span>
+                        <span>${msg.rssi} dBm</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">SNR:</span>
+                        <span>${msg.snr.toFixed(2)} dB</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Counter:</span>
+                        <span>${msg.counter}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Time:</span>
+                        <span>${timestamp}</span>
+                    </div>
+                </div>
+                <div class="signal-bar">
+                    <div class="signal-label">
+                        <span>Signal Quality: ${signalLabel}</span>
+                        <span>${signalPercent.toFixed(0)}%</span>
+                    </div>
+                    <div class="signal-progress">
+                        <div class="signal-fill ${signalClass}" style="width: ${signalPercent}%"></div>
+                    </div>
+                </div>
+            `;
+
+            messagesList.insertBefore(card, messagesList.firstChild);
+
+            // Create magic burst at center of screen
+            createMagicBurst(window.innerWidth / 2, window.innerHeight / 3);
+
+            // Limit to 50 messages
+            const cards = messagesList.querySelectorAll('.message-card');
+            if (cards.length > 50) {
+                cards[cards.length - 1].remove();
+            }
+        }
+
+        // WebSocket event handlers
+        ws.onopen = () => {
+            console.log('[DEBUG] Connected to dashboard WebSocket');
+        };
+
+        ws.onmessage = (event) => {
+            console.log('[DEBUG] Received WebSocket message:', event.data);
+            const data = JSON.parse(event.data);
+            console.log('[DEBUG] Parsed data:', data);
+            console.log('[DEBUG] Message type:', data.type);
+
+            if (data.type === 'init') {
+                // Initial load
+                console.log('[DEBUG] Initializing with', data.messages.length, 'messages');
+                updateStats(data.stats);
+                updateGatewayStatus(data.gatewayConnected, data.stats.connectedGateways);
+
+                // Load existing messages
+                data.messages.forEach(msg => addMessage(msg));
+            } else if (data.type === 'new_message') {
+                // New message received
+                console.log('[DEBUG] NEW MESSAGE RECEIVED!', data.message);
+                addMessage(data.message);
+                updateStats(data.stats);
+            } else if (data.type === 'gateway_status') {
+                console.log('[DEBUG] Gateway status update:', data);
+                updateGatewayStatus(data.connected, data.totalGateways);
+            }
+        };
+
+        ws.onclose = () => {
+            console.log('Disconnected from dashboard WebSocket');
+            updateGatewayStatus(false, 0);
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        // Initialize sparkles
+        createSparkles();
+    </script>
+</body>
+</html>
