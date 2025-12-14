@@ -69,7 +69,7 @@ class Network {
     
     class func forwardSpell(payload: Spell, callback: @escaping (Error?, Data?) -> Void) async {
         guard let data = payload.toString().data(using: .utf8) else { return }
-        await Network.post(urlString: "\(baseURL)resolve/spell/demo", payload: data) { err, data in
+        await Network.post(urlString: "\(baseURL)resolve/spell/contract", payload: data) { err, data in
             if let err = err {
                 print(err)
                 print("errororororo")
