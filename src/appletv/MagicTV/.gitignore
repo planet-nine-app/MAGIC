@@ -1,0 +1,7 @@
+MagicTV.xcodeproj
+.build
+.swiftpm
+DerivedData
+xcuserdata
+crypto-bundle/node_modules
+crypto-bundle/package-lock.json

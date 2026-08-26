@@ -1,0 +1,19 @@
+// Copy this file to config.h (gitignored) and fill in real values.
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define WIFI_SSID "your-wifi-name"
+#define WIFI_PASSWORD "your-wifi-password"
+
+// Deployed and validated this session - includes the wandCast spell and the
+// 900->400 status-code fix. Trailing slash intentionally omitted; code
+// appends "/user/create" and "/resolve/wandCast".
+#define GATEWAY_BASE "https://allyabase-gateway.netlify.app/fount"
+
+// Big-screen demo display (MAGIC/src/embedded/espnow-demo-server/) - must be
+// on the same local network as the target. Find your laptop's LAN IP with
+// `ipconfig getifaddr en0` (macOS) and run `npm start` in that directory.
+#define DEMO_SERVER_URL "http://192.168.0.105:4747/cast"
+
+#endif

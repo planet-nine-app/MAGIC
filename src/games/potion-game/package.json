@@ -1,0 +1,17 @@
+{
+  "name": "potion-game",
+  "version": "0.1.0",
+  "description": "Tiny stand-in RPG battle scene - \"E\" (Game Client) in README-DEV.md's demo. Not Final Fantasy 1, just its shape: a boss fight with a health bar a thrown potion visibly refills.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "planetnineisaspaceship",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "magic-gateway-js": "file:../../server/javascript/magic-adapter",
+    "sessionless-node": "^0.10.1"
+  }
+}

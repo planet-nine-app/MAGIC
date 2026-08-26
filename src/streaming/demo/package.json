@@ -1,0 +1,15 @@
+{
+  "name": "magic-demo-caster",
+  "version": "0.1.0",
+  "description": "\"A\" (User's Client / Caster) in README-DEV.md's demo - registers a fresh throwaway identity with fount and casts throwPotion at the TV (../../appletv/MagicTV/)",
+  "type": "module",
+  "main": "caster.js",
+  "scripts": {
+    "cast": "node caster.js"
+  },
+  "author": "planetnineisaspaceship",
+  "license": "MIT",
+  "dependencies": {
+    "sessionless-node": "^0.10.1"
+  }
+}

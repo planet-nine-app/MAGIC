@@ -1,13 +1,32 @@
 import Foundation
 @preconcurrency import CoreBluetooth
 
+/// Generic BLE central for ../../embedded/ble-sessionless/ - a single ESP32
+/// board that owns its own Sessionless identity and casts a real, signed
+/// MAGIC spell (wandCast) against fount whenever its BLE characteristic is
+/// written to. This app deliberately does none of that signing itself: it
+/// only discovers the board, writes a trigger byte on request, and prints/
+/// relays whatever real cast-result JSON the board notifies back. That's
+/// the whole point of this transport - a laptop (or phone, or Apple TV)
+/// doesn't need any MAGIC-aware code of its own to trigger a spell near a
+/// BLE peripheral that does.
+///
+/// Previously this app faked a LoRa-gateway payload (hardcoded
+/// signatureValid: true) just to forward the old plaintext BLE stub into
+/// lora-server's /lora route and borrow its display. Now that the ESP32
+/// side casts a real spell and notifies a real result, that fakery is gone
+/// - see git history if you need the old version.
 class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    // BLE UUIDs - matching the ESP32
+    // BLE UUIDs - must match ../../embedded/ble-sessionless/src/main.cpp exactly.
     let SERVICE_UUID = CBUUID(string: "4fafc201-1fb5-459e-8fcc-c5c9c331914b")
     let CHARACTERISTIC_UUID = CBUUID(string: "beb5483e-36e1-4688-b7f5-ea07361b26a8")
+    let DEVICE_NAME = "MAGIC-ProS3"
 
-    // HTTP configuration
-    let SERVER_URL = "http://localhost:8081/lora"
+    // Optional: same big-screen demo display the ESP-NOW target posts to
+    // (../../embedded/espnow-demo-server/) - best-effort only, exactly like
+    // the firmware's own notifyDemoServer(). Never blocks or fails anything
+    // if it's not running.
+    let DEMO_SERVER_URL = "http://localhost:4747/cast"
 
     var centralManager: CBCentralManager!
     var discoveredPeripheral: CBPeripheral?
@@ -16,7 +35,6 @@ class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
-        print("✅ HTTP bridge ready - will POST to \(SERVER_URL)")
     }
 
     // MARK: - BLE Central Manager Delegate
@@ -25,7 +43,7 @@ class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         switch central.state {
         case .poweredOn:
             print("✅ Bluetooth is powered on")
-            print("🔍 Scanning for MAGIC-ProS3...")
+            print("🔍 Scanning for \(DEVICE_NAME)...")
             centralManager.scanForPeripherals(withServices: [SERVICE_UUID], options: nil)
 
         case .poweredOff:
@@ -51,9 +69,8 @@ class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         print("📡 Discovered: \(peripheral.name ?? "Unknown") (RSSI: \(RSSI))")
 
-        // Check if this is our device
-        if peripheral.name == "MAGIC-ProS3" {
-            print("🎯 Found MAGIC-ProS3!")
+        if peripheral.name == DEVICE_NAME {
+            print("🎯 Found \(DEVICE_NAME)!")
             discoveredPeripheral = peripheral
             centralManager.stopScan()
             centralManager.connect(peripheral, options: nil)
@@ -75,8 +92,8 @@ class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         if let error = error {
             print("   Error: \(error)")
         }
+        targetCharacteristic = nil
 
-        // Reconnect
         print("🔄 Attempting to reconnect...")
         centralManager.connect(peripheral, options: nil)
     }
@@ -110,9 +127,9 @@ class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
             if characteristic.uuid == CHARACTERISTIC_UUID {
                 targetCharacteristic = characteristic
-                // Subscribe to notifications
                 peripheral.setNotifyValue(true, for: characteristic)
                 print("🔔 Subscribed to notifications")
+                print("💡 Type \"cast\" + Enter to trigger a spell cast on the board.")
             }
         }
     }
@@ -125,63 +142,73 @@ class BLEBridge: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
         guard let data = characteristic.value else { return }
         guard let message = String(data: data, encoding: .utf8) else {
-            print("⚠️  Could not decode message")
+            print("⚠️  Could not decode notified value")
             return
         }
 
-        print("\n🎉 === BLE MESSAGE RECEIVED ===")
-        print("📨 Message: \(message)")
+        print("\n🎉 === BLE NOTIFY RECEIVED ===")
+        print("📨 \(message)")
         print("==============================\n")
 
-        // Forward via HTTP POST
-        sendToServer(message: message)
+        handleCastResult(message)
     }
 
-    // MARK: - HTTP Posting
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: (any Error)?) {
+        if let error = error {
+            print("❌ Write failed: \(error)")
+        } else {
+            print("✏️  Cast trigger written - waiting for result...")
+        }
+    }
 
-    func sendToServer(message: String) {
-        guard let url = URL(string: SERVER_URL) else {
-            print("⚠️  Invalid server URL")
+    // MARK: - Triggering a cast
+
+    /// Any payload works - the board doesn't inspect what's written, only
+    /// that a write happened. A single byte is enough.
+    func triggerCast() {
+        guard let peripheral = discoveredPeripheral, let characteristic = targetCharacteristic else {
+            print("⚠️  Not connected to \(DEVICE_NAME) yet.")
+            return
+        }
+        peripheral.writeValue(Data([1]), for: characteristic, type: .withResponse)
+    }
+
+    // MARK: - Handling a real cast result
+
+    func handleCastResult(_ message: String) {
+        guard let data = message.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            print("⚠️  Notify payload wasn't the expected JSON shape - ignoring.")
             return
         }
 
+        let success = json["success"] as? Bool ?? false
+        let spell = json["spell"] as? String ?? "?"
+        print(success ? "✅ \(spell) resolved successfully" : "❌ \(spell) fizzled")
+
+        if success {
+            notifyDemoServer()
+        }
+    }
+
+    /// Best-effort, mirrors the firmware's own notifyDemoServer() - never
+    /// blocks or fails the actual BLE flow if the demo display isn't running.
+    func notifyDemoServer() {
+        guard let url = URL(string: DEMO_SERVER_URL) else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data("{}".utf8)
 
-        let payload: [String: Any] = [
-            "type": "lora_message",
-            "message": message,
-            "senderPubKey": "BLE-Device",
-            "signatureValid": true,
-            "rssi": -50,
-            "snr": 10.0,
-            "counter": 0,
-            "timestamp": Int(Date().timeIntervalSince1970 * 1000),
-            "gatewayTime": Int(Date().timeIntervalSince1970 * 1000)
-        ]
-
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
-
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("❌ HTTP Error: \(error.localizedDescription)")
-                    return
-                }
-
-                if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
-                        print("📤 Successfully forwarded to server!")
-                    } else {
-                        print("⚠️  Server returned status \(httpResponse.statusCode)")
-                    }
-                }
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            if let error = error {
+                print("ℹ️  Demo server not reachable (\(error.localizedDescription)) - skipping, this is optional.")
+                return
             }
-            task.resume()
-        } catch {
-            print("❌ Failed to serialize JSON: \(error)")
-        }
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📺 Demo server notified -> HTTP \(httpResponse.statusCode)")
+            }
+        }.resume()
     }
 }
 
@@ -192,7 +219,6 @@ print("""
 🔮 MAGIC BLE Bridge
 ================================================
 BLE Device: MAGIC-ProS3
-Server: http://localhost:8081/lora
 ================================================
 
 Starting bridge...
@@ -200,4 +226,22 @@ Starting bridge...
 """)
 
 let bridge = BLEBridge()
+
+// Simple stdin command loop so a human at this Mac can trigger a cast
+// without any MAGIC-aware code of their own - "cast" + Enter writes a
+// trigger byte to the board, same as pressing its BOOT button.
+let stdinQueue = DispatchQueue(label: "ble-bridge-stdin")
+stdinQueue.async {
+    while let line = readLine() {
+        let command = line.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if command == "cast" {
+            DispatchQueue.main.async {
+                bridge.triggerCast()
+            }
+        } else if !command.isEmpty {
+            print("Unknown command \"\(command)\" - only \"cast\" is supported.")
+        }
+    }
+}
+
 RunLoop.main.run()

@@ -1,0 +1,56 @@
+// Copy this file to config.js (gitignored) and adjust as needed.
+
+export default {
+  // fount instance this gateway registers itself with and forwards resolved
+  // spells to. Point at a locally-running fount for development - see
+  // ../../../fount.README (or just `LOCALHOST=true node server.js` in
+  // fount/src/server/node/, which listens on 3006).
+  FOUNT_BASE: 'http://localhost:3006',
+
+  // Port this gateway's own Express server listens on. Casters (or an
+  // upstream gateway) POST spells to http://localhost:PORT/magic/spell/:spellName
+  PORT: 3100,
+
+  // Must match the stopName used in this spell's spellbook entry - see
+  // src/spellbook.js and README.md for why this gateway needs its OWN copy
+  // of that entry (with a multi-hop destinations array) that's deliberately
+  // different from fount's copy (single-hop, so fount doesn't loop back and
+  // re-POST the resolved spell here a second time).
+  STOP_NAME: 'obs-gateway',
+
+  // Which spell this gateway relays, and what comes immediately after it in
+  // the chain. Defaults below make this gateway standalone (obsCast ->
+  // fount directly, cost 50) - see README.md. To use this gateway as hop
+  // "D" (Streamer's Client) in ../demo/'s full 5-participant chain instead,
+  // set SPELL_NAME: 'throwPotion' and NEXT_DESTINATIONS to point at "E" (the
+  // game client, ../../games/potion-game/) - see ../demo/README.md.
+  SPELL_NAME: 'obsCast',
+  SPELL_COST: 50,
+  NEXT_DESTINATIONS: [
+    { stopName: 'fount', stopURL: 'http://localhost:3006/resolve/' }
+  ],
+
+  // obs-websocket (built into OBS Studio 28+, Tools > obs-websocket Settings).
+  // Connecting to OBS is best-effort: if it's unreachable, this gateway still
+  // runs and still resolves spells against fount - it just can't drive OBS,
+  // which is logged clearly rather than failing the whole process.
+  OBS_URL: 'ws://127.0.0.1:4455',
+  OBS_PASSWORD: '',
+
+  // Where this gateway persists its own Sessionless keypair + fount
+  // registration, analogous to the ESP32 boards' NVS storage. Gitignored.
+  KEYS_FILE: './keys.json',
+
+  // Maps the caster-supplied `effect` field (see README.md) to an OBS
+  // action. Add your own scene/source names here to match your OBS setup.
+  // Every effect that isn't a hotkey auto-reverts after HOLD_MS, mirroring
+  // the fixed-duration purple LED hold used by the embedded gateways
+  // (../../embedded/espnow-target/, ../../embedded/ble-sessionless/) so all
+  // three transports share the same "cast -> visible reaction for a few
+  // seconds -> back to normal" shape.
+  HOLD_MS: 5000,
+  EFFECTS: {
+    potion: { type: 'sourceFlash', sceneName: 'Scene', sourceName: 'MAGIC-Overlay' },
+    hype: { type: 'hotkey', hotkeyName: 'MAGIC_HYPE' }
+  }
+};

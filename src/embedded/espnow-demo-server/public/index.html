@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Physical MAGIC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg-dark: #0a0a12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-dark);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  #gradient-layer {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(135deg, #6b21e8 0%, #a855f7 35%, #22c55e 75%, #16a34a 100%);
+    background-size: 200% 200%;
+    transition: opacity 1.2s ease;
+    z-index: 0;
+  }
+
+  body.celebrating #gradient-layer {
+    opacity: 1;
+    animation: shift 4s ease-in-out infinite;
+  }
+
+  @keyframes shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  #fireworks {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  #content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #label {
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #e8e8f0;
+    text-shadow: 0 0 30px rgba(168, 85, 247, 0.35);
+    transition: font-size 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                color 0.6s ease,
+                text-shadow 0.6s ease;
+  }
+
+  #waiting-prefix {
+    display: inline;
+    font-size: 4vw;
+    opacity: 0.7;
+    transition: opacity 0.4s ease, font-size 0.4s ease;
+  }
+
+  #magic-word {
+    display: inline;
+    font-size: 9vw;
+  }
+
+  body.celebrating #waiting-prefix {
+    opacity: 0;
+    font-size: 0;
+  }
+
+  body.celebrating #magic-word {
+    font-size: 16vw;
+    color: #ffffff;
+    text-shadow:
+      0 0 40px rgba(255, 255, 255, 0.8),
+      0 0 80px rgba(168, 85, 247, 0.6),
+      0 0 120px rgba(34, 197, 94, 0.5);
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+</style>
+</head>
+<body>
+<div id="gradient-layer"></div>
+<canvas id="fireworks"></canvas>
+<div id="content">
+  <div id="label"><span id="waiting-prefix">Waiting on&nbsp;</span><span id="magic-word">MAGIC</span></div>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('fireworks');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+
+  function resize() {
+    width = canvas.width = window.innerWidth * devicePixelRatio;
+    height = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const HUES = [280, 300, 145, 160, 45, 190];
+  let particles = [];
+  let animating = false;
+
+  function spawnBurst(x, y) {
+    const hue = HUES[Math.floor(Math.random() * HUES.length)];
+    const count = 60 + Math.floor(Math.random() * 40);
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+      const speed = (2 + Math.random() * 5) * devicePixelRatio;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        alpha: 1,
+        decay: 0.008 + Math.random() * 0.012,
+        hue: hue + (Math.random() * 30 - 15),
+        size: (1.5 + Math.random() * 2) * devicePixelRatio
+      });
+    }
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'lighter';
+
+    particles = particles.filter(p => p.alpha > 0.02);
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.045 * devicePixelRatio; // gravity
+      p.vx *= 0.985; // drag
+      p.vy *= 0.985;
+      p.alpha -= p.decay;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 90%, 65%, ${Math.max(p.alpha, 0)})`;
+      ctx.fill();
+    }
+
+    if (animating || particles.length > 0) {
+      requestAnimationFrame(tick);
+    } else {
+      ctx.clearRect(0, 0, width, height);
+    }
+  }
+
+  function startFireworks(durationMs) {
+    if (!animating) {
+      animating = true;
+      requestAnimationFrame(tick);
+    }
+
+    const burstInterval = setInterval(() => {
+      const x = (0.15 + Math.random() * 0.7) * width;
+      const y = (0.15 + Math.random() * 0.5) * height;
+      spawnBurst(x, y);
+    }, 260);
+
+    setTimeout(() => {
+      clearInterval(burstInterval);
+      animating = false;
+    }, durationMs);
+  }
+
+  function celebrate() {
+    document.body.classList.add('celebrating');
+    startFireworks(5000);
+    setTimeout(() => {
+      document.body.classList.remove('celebrating');
+    }, 6000);
+  }
+
+  function connect() {
+    const source = new EventSource('/events');
+    source.addEventListener('cast', () => celebrate());
+    source.onerror = () => {
+      // browser auto-retries EventSource connections on its own
+    };
+  }
+  connect();
+})();
+</script>
+</body>
+</html>

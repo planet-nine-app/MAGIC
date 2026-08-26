@@ -1,0 +1,22 @@
+// Copy this file to config.js (gitignored) and adjust as needed.
+
+export default {
+  FOUNT_BASE: 'http://localhost:3006',
+
+  // "C" in README-DEV.md's demo listens here - "B" (../../appletv/MagicTV/,
+  // Config.nextHopURL) must point at this same port.
+  PORT: 3200,
+
+  STOP_NAME: 'streaming-server',
+
+  SPELL_NAME: 'throwPotion',
+  SPELL_COST: 50,
+
+  // Next hop: "D", the Streamer's Client (../obs-gateway/, reconfigured -
+  // see ../demo/README.md).
+  NEXT_DESTINATIONS: [
+    { stopName: 'obs-gateway', stopURL: 'http://localhost:3100/magic/spell/' }
+  ],
+
+  KEYS_FILE: './keys.json'
+};

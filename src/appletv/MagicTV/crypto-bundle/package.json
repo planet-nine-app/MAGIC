@@ -1,0 +1,8 @@
+{
+  "name": "magic-tv-crypto-bundle",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ethereum-cryptography": "^2.2.1"
+  }
+}

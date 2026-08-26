@@ -1,0 +1,17 @@
+{
+  "name": "streaming-server",
+  "version": "0.1.0",
+  "description": "Pure pass-through MAGIC gateway - stands in for the streaming platform's backend in README-DEV.md's demo (\"C\" / Streaming Server)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "planetnineisaspaceship",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "magic-gateway-js": "file:../../server/javascript/magic-adapter",
+    "sessionless-node": "^0.10.1"
+  }
+}

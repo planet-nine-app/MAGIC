@@ -1,0 +1,26 @@
+// Copy this file to config.js (gitignored) and adjust as needed.
+
+export default {
+  FOUNT_BASE: 'http://localhost:3006',
+
+  // "E" in README-DEV.md's demo listens here, and also serves the battle
+  // scene page (open http://localhost:3300 in a browser to watch it react).
+  PORT: 3300,
+
+  STOP_NAME: 'game-client',
+
+  SPELL_NAME: 'throwPotion',
+  SPELL_COST: 50,
+
+  // Next hop: "F", the resolver. This is the last gateway before fount, so
+  // unlike streaming-server/obs-gateway this NEXT_DESTINATIONS points
+  // straight at /resolve/, not another /magic/spell/ hop.
+  NEXT_DESTINATIONS: [
+    { stopName: 'fount', stopURL: 'http://localhost:3006/resolve/' }
+  ],
+
+  KEYS_FILE: './keys.json',
+
+  MAX_HP: 100,
+  POTION_HEAL: 30
+};

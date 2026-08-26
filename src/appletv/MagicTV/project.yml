@@ -1,0 +1,30 @@
+name: MagicTV
+options:
+  bundleIdPrefix: com.planetnine.magic
+  deploymentTarget:
+    tvOS: "17.0"
+packages:
+  Swifter:
+    url: https://github.com/httpswift/swifter.git
+    from: "1.5.0"
+targets:
+  MagicTV:
+    type: application
+    platform: tvOS
+    sources:
+      - path: MagicTV
+      - path: Resources
+        buildPhase: resources
+    dependencies:
+      - package: Swifter
+    info:
+      path: MagicTV/Info.plist
+      properties:
+        UILaunchScreen: {}
+        NSLocalNetworkUsageDescription: "MagicTV listens on your local network for MAGIC spell casts (e.g. from src/streaming/demo/caster.js) to relay toward the streaming server."
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.planetnine.magic.tv

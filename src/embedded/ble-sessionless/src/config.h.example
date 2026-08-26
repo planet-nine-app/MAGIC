@@ -1,0 +1,22 @@
+// Copy this file to config.h (gitignored) and fill in real values.
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define WIFI_SSID "your-wifi-name"
+#define WIFI_PASSWORD "your-wifi-password"
+
+// Same hosted gateway the ESP-NOW wand/target demo casts wandCast against -
+// this board reuses that exact spell (cost 50, mp: true) rather than
+// requiring a new spellbook entry / redeploy. Trailing slash intentionally
+// omitted; code appends "/user/create" and "/resolve/wandCast".
+#define GATEWAY_BASE "https://allyabase-gateway.netlify.app/fount"
+
+// Optional big-screen demo display (../espnow-demo-server/) - must be on the
+// same local network as this board. Find your laptop's LAN IP with
+// `ipconfig getifaddr en0` (macOS) and run `npm start` in that directory.
+// Leave as-is (or point at an unreachable host) if you don't want this -
+// notifyDemoServer() is best-effort and never blocks/fails the real cast.
+#define DEMO_SERVER_URL "http://192.168.0.105:4747/cast"
+
+#endif

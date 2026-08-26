@@ -1,0 +1,14 @@
+{
+  "name": "espnow-demo-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Big-screen display for the ESP-NOW wand demo - shows 'Waiting on MAGIC' and celebrates when the target's spell resolves.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

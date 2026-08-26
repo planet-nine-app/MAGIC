@@ -1,0 +1,19 @@
+{
+  "name": "obs-gateway",
+  "version": "0.1.0",
+  "description": "MAGIC gateway that drives OBS Studio (via obs-websocket) in response to a resolved spell",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "cast": "node test/cast.js"
+  },
+  "author": "planetnineisaspaceship",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "magic-gateway-js": "file:../../server/javascript/magic-adapter",
+    "obs-websocket-js": "^5.0.8",
+    "sessionless-node": "^0.10.1"
+  }
+}
